@@ -1,0 +1,23 @@
+# Introducción
+
+Debido al gran avance tecnológico de los últimos años, se ha conseguido una amplia variedad de dispositivos que permiten registrar una ingente cantidad de información con relativamente poco esfuerzo. Un ejemplo de esto, son los dispositivos que registran información de variables de interés (Ej: temperatura, humedad, irradiancia) a un determinado intervalo de tiempo y de manera autónoma. Muchos de estos dispositivos pueden ser instalados en lugares remotos y transmitir la información telemáticamente o almacenarla en la memoria interna. Esto a supuesto un gran avance en el campo de la ecología acuática^[Por supuesto, esto ha revolucionado infinidad de campos como la biomedicina, ingeniería, informática, meteorología, etc]. Cómo podéis imaginar, estos dispositivos han permitido obtener una gran cantidad de información con una resolución temporal (de incluso minutos o segundos) y durante grandes periodos de tiempo (meses/años) que sería impracticable mediante los métodos tradicionales. 
+
+
+```{r, echo=FALSE,out.width="49%", out.height="20%",fig.cap="**Sistemas de monitoreo de alta frecuencia.** *Izquierda:* boya flotante que realiza medidas cada 10 minutos a una profundidas de 1.5 metros en el embalse de Sau (Barcelona). *Derecha:* boya flotante que realiza perfiles verticales desde la superficie hasta el fondo con un resolución espacial de 1 metro y una resolución temporal de 2 horas en el embalse de El Gergal (Sevilla).",fig.show='hold',fig.align='center'}
+knitr::include_graphics(c("Img/foto-sau.jpg","Img/BoyaGergal.jpg"))
+``` 
+
+
+Los monitoreos de alta frecuencia (HFM) tienen muchas aplicaciones dentro de la ecología acuática, tanto en el ámbito de la gestión como de la investigación. Por ejemplo, pueden ser usados para controlar la calidad del agua en un embalse que suministra agua potable a una ciudad, control de vertidos de una industria, estudiar el efecto de eutrofización en un lago de alta montaña o detectar cambios en las corrientes marinas.
+
+Sin embargo, no todo es de color de rosas. Imaginaos que, después de dos años, vamos a recoger la información que ha almacenado nuestro sensor de temperatura y oxígeno disuelto que dejamos colocado en el centro de un lago de los pirineos. Al descargar la información, nos encontramos que tenemos 1.036.800 registros (porque claro está, queríamos registrar los datos cada segundo)... Echamos manos mano de nuestro amado Excel (Calc para los radicales del software libre) e intentamos calcular la temperatura media de esos dos años entre las 00:00 a las 08:00. A mí me ha entrado un sudor frío. Y es que, esta vasta y valiosa información tiene un inconveniente... tenemos que trabajar con miles o millones de datos. Por suerte, se disponen de muchas herramientas para trabajar con los datos. 
+
+En esta práctica de Ecología de Sistemas Acuáticos, en la que vamos a trabajar con datos de HFM para estudiar la estructura térmica de un lago, me gustaría presentaros una herramienta, que a mi parecer, es fundamental para cualquier biólog@ y que os permitirá realizar todo el trabajo (desde organización de la información hasta su visualización, pasando por el análisis estadístico) con un solo software libre, de código abierto y gratuito. Estamos hablando de [R](https://www.r-project.org/). Para l@s que no lo conozcáis, Si buscáis R en google os aparecerá en las primera 4-5 entradas. Esto nos puede dar una idea de su relevancia a nivel mundial.
+
+A partir de aquí, no os voy a engañar, R no es, por lo general, muy agradable y no suele despertar simpatías. ¡Echad un vistazo a la figura de abajo!
+
+```{r, echo=FALSE,fig.cap="Comparación de la curva de aprendizaje de distintos software estadísticos. Fuente: https://twitter.com/rogierK/status/730863729420701697",fig.show='hold',fig.align='center'}
+knitr::include_graphics("Img/Learn_R.jpg")
+```
+
+Sin embargo, cuando esos momentos de flaqueza acontezcan imaginad si sería posible hacerlo con otra herramienta y el tiempo que os llevaría. Además, cada vez que tengáis que hacer un estudio o evaluación necesitaréis usar Excel para ordenar los datos, SPSS (u otro programa de estadística) para el análisis y sigma plot (o similar) para hacer gráficas decentes. Mejor no hablamos de software específicos para cada campo: VENSIM, PRIME, Ocean Data View, SURFER, etc. A la larga el tiempo invertido habrá merecido la pena.

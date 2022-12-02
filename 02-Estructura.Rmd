@@ -1,0 +1,7 @@
+# Estructura de la práctica
+
+  1. [Obtener los datos con los que vamos a trabajar.](#Descarga) Usaremos la red [The Global Lake Ecological Observatory Network (GLEON)](https://gleon.org/). Esta red pone a nuestra disposición una amplia cantidad de datos de monitoreo de alta frecuencia (HFM) de distintos lugares del mundo.
+  2. [Primeros pasos en R.](#PrimerosPasos)
+  3. [Familiarizarnos con los paquetes y funciones básicos de R que nos permiten explorar y trabajar con grandes tablas de datos.](@Tidyverse)
+  4. [Calcular profundidad de la termoclina y la estabilidad de la columna de agua (número de Smidch)](@Termoclina) usando el paquete de R [rLakeAnalyzer](https://cran.r-project.org/web/packages/rLakeAnalyzer/rLakeAnalyzer.pdf).
+  5. [Gráficas de contorno](#Contour).

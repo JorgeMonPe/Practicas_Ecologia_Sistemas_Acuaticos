@@ -1,0 +1,24 @@
+.ejercicios {
+background-color: #6495ED;
+color: white;
+padding: 10px;
+border: 1px solid black;
+margin-left: 25px;
+border-radius: 5px;
+font-style: italic;
+}
+
+.texto {
+background-color: #6495ED;
+color: white;
+font-style: italic;
+}
+
+.textoC {
+background-color: #6495ED;
+color: white;
+font-style: italic;
+text-align: center;
+font-size:15px;
+font-weight: bold;
+}

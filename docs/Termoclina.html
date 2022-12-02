@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6 Estabilidad térmica de la columna de agua | Prácticas de Ecología de Sistemas Acuáticos</title>
+  <meta name="description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6 Estabilidad térmica de la columna de agua | Prácticas de Ecología de Sistemas Acuáticos" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6 Estabilidad térmica de la columna de agua | Prácticas de Ecología de Sistemas Acuáticos" />
+  
+  <meta name="twitter:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+<meta name="author" content="Jorge Juan Montes Pérez (jmontesp@uma.es)" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Tidyverse.html"/>
+<link rel="next" href="Contour.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.js');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+<script>
+document.write('<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>')
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Ecología de Sistemas Acuáticos</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>¿Cómo seguir la práctica?</a></li>
+<li class="chapter" data-level="1" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>1</b> Introducción</a></li>
+<li class="chapter" data-level="2" data-path="estructura-de-la-práctica.html"><a href="estructura-de-la-práctica.html"><i class="fa fa-check"></i><b>2</b> Estructura de la práctica</a></li>
+<li class="chapter" data-level="3" data-path="Descarga.html"><a href="Descarga.html"><i class="fa fa-check"></i><b>3</b> Descargar los datos de la red GLEON</a></li>
+<li class="chapter" data-level="4" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html"><i class="fa fa-check"></i><b>4</b> Primero pasos</a><ul>
+<li class="chapter" data-level="4.1" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html#ejercicios"><i class="fa fa-check"></i><b>4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Tidyverse.html"><a href="Tidyverse.html"><i class="fa fa-check"></i><b>5</b> Paquetes importantes y sus funciones básicas</a><ul>
+<li class="chapter" data-level="5.1" data-path="Tidyverse.html"><a href="Tidyverse.html#importar-datos"><i class="fa fa-check"></i><b>5.1</b> Importar datos</a></li>
+<li class="chapter" data-level="5.2" data-path="Tidyverse.html"><a href="Tidyverse.html#organizar-tablas"><i class="fa fa-check"></i><b>5.2</b> Organizar tablas</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-1"><i class="fa fa-check"></i><b>5.2.1</b> Ejercicios:</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Tidyverse.html"><a href="Tidyverse.html#gráficas"><i class="fa fa-check"></i><b>5.3</b> Gráficas</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-2"><i class="fa fa-check"></i><b>5.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="Tidyverse.html"><a href="Tidyverse.html#trabajar-con-fechas"><i class="fa fa-check"></i><b>5.4</b> Trabajar con fechas</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-3"><i class="fa fa-check"></i><b>5.4.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Termoclina.html"><a href="Termoclina.html"><i class="fa fa-check"></i><b>6</b> Estabilidad térmica de la columna de agua</a><ul>
+<li class="chapter" data-level="6.1" data-path="Termoclina.html"><a href="Termoclina.html#perfil-vertical"><i class="fa fa-check"></i><b>6.1</b> Perfil vertical</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicio"><i class="fa fa-check"></i><b>6.1.1</b> Ejercicio</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="Termoclina.html"><a href="Termoclina.html#termoclina"><i class="fa fa-check"></i><b>6.2</b> Termoclina</a></li>
+<li class="chapter" data-level="6.3" data-path="Termoclina.html"><a href="Termoclina.html#capas-en-un-lago-estratificado"><i class="fa fa-check"></i><b>6.3</b> Capas en un lago estratificado</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-4"><i class="fa fa-check"></i><b>6.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="Termoclina.html"><a href="Termoclina.html#estabilidad"><i class="fa fa-check"></i><b>6.4</b> Estabilidad</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-5"><i class="fa fa-check"></i><b>6.4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="Termoclina.html"><a href="Termoclina.html#series-temporales"><i class="fa fa-check"></i><b>6.5</b> Series temporales</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-6"><i class="fa fa-check"></i><b>6.5.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Contour.html"><a href="Contour.html"><i class="fa fa-check"></i><b>7</b> Gráficas de contorno</a><ul>
+<li class="chapter" data-level="7.0.1" data-path="Contour.html"><a href="Contour.html#ejercicios-7"><i class="fa fa-check"></i><b>7.0.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="bibliografía.html"><a href="bibliografía.html"><i class="fa fa-check"></i>Bibliografía</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org/" target="blank">Realizado con bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Prácticas de Ecología de Sistemas Acuáticos</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="Termoclina" class="section level1">
+<h1><span class="header-section-number">6</span> Estabilidad térmica de la columna de agua</h1>
+<p>Llegados a este punto de la práctica ya podemos adentrarnos en cuestiones más puramente limnológicas. Hemos echado un vistazo a los datos que descargamos y decidimos seleccionar el año 2012. Además, para el eliminar las variaciones diarias y centrarnos en una tendencia estacional, hemos obtenido un perfil promedio del lago Crystal para cada día. Si en el apartado anterior no conseguisteis hacer el promedio diario para todas las variables os dejo el código aquí para que partamos tod@s desde el mismo punto:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="Termoclina.html#cb54-1"></a><span class="co">#Library</span></span>
+<span id="cb54-2"><a href="Termoclina.html#cb54-2"></a><span class="kw">library</span>(tidyverse) <span class="co">#Recordad siempre cargar los paquetes que vais a necesitar al inicio del script</span></span>
+<span id="cb54-3"><a href="Termoclina.html#cb54-3"></a></span>
+<span id="cb54-4"><a href="Termoclina.html#cb54-4"></a><span class="co">#Lo he recogido todo en una sola línea.</span></span>
+<span id="cb54-5"><a href="Termoclina.html#cb54-5"></a>Crystal_dia &lt;-<span class="st"> </span>Crystal_<span class="dv">2012</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">between</span>(<span class="kw">hour</span>(sampledate), <span class="dv">11</span>, <span class="dv">16</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(daynum, depth_calculated) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise_if</span>(is.numeric, mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb54-6"><a href="Termoclina.html#cb54-6"></a></span>
+<span id="cb54-7"><a href="Termoclina.html#cb54-7"></a><span class="co">#Exportamos los datos</span></span>
+<span id="cb54-8"><a href="Termoclina.html#cb54-8"></a><span class="kw">write_csv</span>(Crystal_dia, <span class="st">&quot;Datos/Crystal_dia.csv&quot;</span>) <span class="co">#Guardamos la información en un archivo</span></span></code></pre></div>
+<div id="perfil-vertical" class="section level2">
+<h2><span class="header-section-number">6.1</span> Perfil vertical</h2>
+<p>Todavía no hemos visualizado lo que acabamos de hacer. Vamos a ver como ha quedado la tabla.</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="Termoclina.html#cb55-1"></a>Crystal_dia</span></code></pre></div>
+<pre><code>## # A tibble: 3,365 x 9
+##    daynum depth_calculated year4 sample_time water_temp    pH chlorophylla
+##     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;
+##  1     82                0  2012         NaN       8.32  7.59         1.06
+##  2     82                1  2012         NaN       6.54  6.56         1.24
+##  3     82                2  2012         NaN       6.41  6.27         1.35
+##  4     82                3  2012         NaN       5.92  6.10         1.81
+##  5     82                4  2012         NaN       5.74  6.10         2.07
+##  6     82                5  2012         NaN       5.66  6.37         2.31
+##  7     82                6  2012         NaN       5.51  6.34         2.63
+##  8     82                7  2012         NaN       5.30  6.34         2.86
+##  9     82                8  2012         NaN       5.14  6.32         2.95
+## 10     82                9  2012         NaN       5.03  6.38         3.31
+## # … with 3,355 more rows, and 2 more variables: opt_do2 &lt;dbl&gt;,
+## #   opt_dosat_raw &lt;dbl&gt;</code></pre>
+<p>Tiene justo lo que queríamos. Vamos a representar el perfil vertical de temperatura para un día concreto.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="Termoclina.html#cb57-1"></a><span class="co">#Elegimos un día</span></span>
+<span id="cb57-2"><a href="Termoclina.html#cb57-2"></a>Dia_elegido &lt;-<span class="st"> </span>Crystal_dia <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(daynum <span class="op">==</span><span class="st"> </span><span class="dv">200</span>)</span>
+<span id="cb57-3"><a href="Termoclina.html#cb57-3"></a></span>
+<span id="cb57-4"><a href="Termoclina.html#cb57-4"></a><span class="co">#Representamos</span></span>
+<span id="cb57-5"><a href="Termoclina.html#cb57-5"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">x=</span> depth_calculated, <span class="dt">y =</span> water_temp))<span class="op">+</span></span>
+<span id="cb57-6"><a href="Termoclina.html#cb57-6"></a><span class="st">  </span><span class="kw">geom_point</span>()<span class="op">+</span></span>
+<span id="cb57-7"><a href="Termoclina.html#cb57-7"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Profundidad (m)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>)</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-45-1.png" width="100%" /></p>
+<p>Tiene buena pinta pero es extraño. Nosotr@s estamos acostumbrados a ver los perfiles así:</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-46"></span>
+<img src="Img/Perfil2.png" alt="Representación clásica de un perfil vertical de temperatura." width="100%" />
+<p class="caption">
+Figura 6.1: Representación clásica de un perfil vertical de temperatura.
+</p>
+</div>
+<p>Pues vamos a hacer algunos cambios en el código para mejorar esto.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="Termoclina.html#cb58-1"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">y=</span> depth_calculated, <span class="dt">x =</span> water_temp))<span class="op">+</span></span>
+<span id="cb58-2"><a href="Termoclina.html#cb58-2"></a><span class="st">  </span><span class="kw">geom_point</span>()<span class="op">+</span></span>
+<span id="cb58-3"><a href="Termoclina.html#cb58-3"></a><span class="st">  </span><span class="kw">scale_y_reverse</span>()<span class="op">+</span><span class="st"> </span><span class="co"># Invertimos la profundidad para que la parte superior sea 0 metros.</span></span>
+<span id="cb58-4"><a href="Termoclina.html#cb58-4"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">position =</span> <span class="st">&quot;top&quot;</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Colocamos el eje arriba</span></span>
+<span id="cb58-5"><a href="Termoclina.html#cb58-5"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Profundidad (m)&quot;</span>)<span class="op">+</span></span>
+<span id="cb58-6"><a href="Termoclina.html#cb58-6"></a><span class="st">  </span><span class="kw">theme_classic</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-47-1.png" width="100%" /></p>
+<p>Esto tiene mejor pinta. Prueba a usar <code>geom_line()</code> en lugar de <code>geom_point()</code>. Sucede algo extraño entorno a los 5 metros de profundidad ¿verdad? Esto sucede porque <code>geom_line()</code> une las observaciones ordenadas por la variable <code>x</code>. Prueba mejor con <code>geom_path()</code>. Otra opción es asignar la profundidad al eje x y cambiar los ejes (es un poco lioso, os dejo el código por si queréis indagar).</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="Termoclina.html#cb59-1"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">x=</span> depth_calculated, <span class="dt">y =</span> water_temp))<span class="op">+</span></span>
+<span id="cb59-2"><a href="Termoclina.html#cb59-2"></a><span class="st">  </span><span class="kw">geom_line</span>()<span class="op">+</span></span>
+<span id="cb59-3"><a href="Termoclina.html#cb59-3"></a><span class="st">  </span><span class="kw">coord_flip</span>()<span class="op">+</span><span class="st"> </span><span class="co">#Cambia el eje x por el y</span></span>
+<span id="cb59-4"><a href="Termoclina.html#cb59-4"></a><span class="st">  </span><span class="kw">scale_x_reverse</span>()<span class="op">+</span><span class="st"> </span><span class="co"># Invertimos la profundidad para que la parte superior sea 0 metros.</span></span>
+<span id="cb59-5"><a href="Termoclina.html#cb59-5"></a><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">position =</span> <span class="st">&quot;right&quot;</span>)<span class="op">+</span></span>
+<span id="cb59-6"><a href="Termoclina.html#cb59-6"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Profundidad (m)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>)</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-48-1.png" width="100%" /></p>
+<p>Quitando esta curiosidad con respecto a como se representan las variables, ya tenemos nuestro perfil vertical de temperatura:</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="Termoclina.html#cb60-1"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">y=</span> depth_calculated, <span class="dt">x =</span> water_temp))<span class="op">+</span></span>
+<span id="cb60-2"><a href="Termoclina.html#cb60-2"></a><span class="st">  </span><span class="kw">geom_path</span>(<span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">size =</span> <span class="dv">3</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Cambiamos un poco la estética dándole color y grosor a la línea</span></span>
+<span id="cb60-3"><a href="Termoclina.html#cb60-3"></a><span class="st">  </span><span class="kw">scale_y_reverse</span>()<span class="op">+</span><span class="st"> </span><span class="co"># Invertimos la profundidad para que la parte superior sea 0 metros.</span></span>
+<span id="cb60-4"><a href="Termoclina.html#cb60-4"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">position =</span> <span class="st">&quot;top&quot;</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Colocamos el eje arriba</span></span>
+<span id="cb60-5"><a href="Termoclina.html#cb60-5"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Profundidad (m)&quot;</span>)<span class="op">+</span></span>
+<span id="cb60-6"><a href="Termoclina.html#cb60-6"></a><span class="st">  </span><span class="kw">theme_classic</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-49-1.png" width="100%" /></p>
+<div id="ejercicio" class="section level3">
+<h3><span class="header-section-number">6.1.1</span> Ejercicio</h3>
+<ol style="list-style-type: decimal">
+<li><em>Haz un perfil con la concentración de oxígeno disuelto y otro con el pH.</em></li>
+</ol>
+</div>
+</div>
+<div id="termoclina" class="section level2">
+<h2><span class="header-section-number">6.2</span> Termoclina</h2>
+<p>Ahora, en base a el perfil de temperatura que hemos representado, ¿sabrías si este día el lago está estratificado? Si estuviera estratificado, ¿serías capaz de decir a que profundidad se encuentra la termoclina?</p>
+<p>A ojo podríamos acercarnos bastante pero imaginad que luego quisiéramos calcularlo para cada día… Gracias al altruismo y la ciencia colaborativa tenemos a nuestra disposición un paquete desarrollado especialmente para este tipo de cosas que nos gustan a los limnolog@s. El paquete es <a href="https://cran.r-project.org/web/packages/rLakeAnalyzer/rLakeAnalyzer.pdf"><code>rLakeAnalyzer</code></a> y contiene métodos estandarizados para calcular propiedades físicas del lago, como la termoclina, la estabilidad de Schmidt, etc. Para instalarlo: <code>install.packages("rLakeAnalyzer")</code>. Si echáis un vistazo al paquete veréis un montón de funciones interesantes. Nosotros, ahora mismo, queríamos saber a que profundidad tenemos la termoclina. Para eso, vamos a pedir ayuda para aprender a usar la función <code>?thermo.depth()</code>. Aquí podemos ver los argumentos que necesitamos. Por ejemplo, podemos indicarle la densidad mínima para considerar que existe termoclina o la temperatura por debajo de la cual no queremos que calcule termoclina. No vamos a reparar en estos. Sin embargo, el argumento <code>seasonal</code> viene por defecto como verdadero, situando la termoclina en el gradiente de densidad más profundo. Nosotros vamos a cambiarlo a <code>FALSE</code>. Estos son argumentos opcionales, los indispensables son un vector numérico con la temperatura del agua (<code>wtr</code>) y otro vector numérico con la profundidad que corresponde a cada temperatura. Estos los tenemos, así que nos podemos poner manos a la obra:</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="Termoclina.html#cb61-1"></a><span class="co">#Library</span></span>
+<span id="cb61-2"><a href="Termoclina.html#cb61-2"></a><span class="kw">library</span>(rLakeAnalyzer)</span>
+<span id="cb61-3"><a href="Termoclina.html#cb61-3"></a><span class="co">#Creamos dos vectors con la información que nos pide</span></span>
+<span id="cb61-4"><a href="Termoclina.html#cb61-4"></a>Temp &lt;-<span class="st"> </span>Dia_elegido<span class="op">$</span>water_temp</span>
+<span id="cb61-5"><a href="Termoclina.html#cb61-5"></a>Prof &lt;-<span class="st"> </span>Dia_elegido<span class="op">$</span>depth_calculated</span>
+<span id="cb61-6"><a href="Termoclina.html#cb61-6"></a></span>
+<span id="cb61-7"><a href="Termoclina.html#cb61-7"></a><span class="co">#Calculamos la termoclina</span></span>
+<span id="cb61-8"><a href="Termoclina.html#cb61-8"></a><span class="kw">thermo.depth</span>(<span class="dt">wtr =</span> Temp, <span class="dt">depths =</span> Prof, <span class="dt">seasonal =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## [1] 7.397819</code></pre>
+<p>¡Voilá! Ya tenemos la profundidad a la que está la termoclina. Vamos a representarla:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="Termoclina.html#cb63-1"></a><span class="co">#Vamos a guardar la profundidad de la termoclina en un objeto</span></span>
+<span id="cb63-2"><a href="Termoclina.html#cb63-2"></a>Termoclina &lt;-<span class="st"> </span><span class="kw">thermo.depth</span>(<span class="dt">wtr =</span> Temp, <span class="dt">depths =</span> Prof, <span class="dt">seasonal =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb63-3"><a href="Termoclina.html#cb63-3"></a></span>
+<span id="cb63-4"><a href="Termoclina.html#cb63-4"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">y=</span> depth_calculated, <span class="dt">x =</span> water_temp))<span class="op">+</span></span>
+<span id="cb63-5"><a href="Termoclina.html#cb63-5"></a><span class="st">  </span><span class="kw">geom_path</span>(<span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">size =</span> <span class="dv">3</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Cambiamos un poco la estética dándole color y grosor a la línea</span></span>
+<span id="cb63-6"><a href="Termoclina.html#cb63-6"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> Termoclina)<span class="op">+</span><span class="st"> </span><span class="co">#Añadimos la termoclina</span></span>
+<span id="cb63-7"><a href="Termoclina.html#cb63-7"></a><span class="st">  </span><span class="kw">scale_y_reverse</span>()<span class="op">+</span><span class="st"> </span><span class="co"># Invertimos la profundidad para que la parte superior sea 0 metros.</span></span>
+<span id="cb63-8"><a href="Termoclina.html#cb63-8"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">position =</span> <span class="st">&quot;top&quot;</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Colocamos el eje arriba</span></span>
+<span id="cb63-9"><a href="Termoclina.html#cb63-9"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Profundidad (m)&quot;</span>)<span class="op">+</span></span>
+<span id="cb63-10"><a href="Termoclina.html#cb63-10"></a><span class="st">  </span><span class="kw">theme_classic</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-51-1.png" width="100%" /></p>
+</div>
+<div id="capas-en-un-lago-estratificado" class="section level2">
+<h2><span class="header-section-number">6.3</span> Capas en un lago estratificado</h2>
+<p>Como sabéis, cuando un lago (o un embalse) se encuentra estratificado se puede diferenciar en distintas capas. Una capa superficial, que está mezclada y en contacto con la atmósfera, el <strong>epilimnion</strong>, otra capa profunda, aislada de la superior debido al fuerte gradiente de densidad, el <strong>hipolimnion</strong> y una capa intermedia que hace de interfase entre estas dos capas, el <strong>metalimnion</strong>. Esto determinan los procesos que tendrán lugar a cada profundidad. La capa superficial al estar en contacto con la atmósfera estará bien oxigenada y dará lugar a que se desarrolle la vida aeróbica sin problemas. La capa profunda, sin embargo, puede acabar volviéndose anóxica y limitando la degradación de la materia orgánica a mecanismos de respiración anaeróbica (desnitrificación, sulfato reducción, etc) y acumulando metales que pueden ser tóxicos y comprometer su uso para abastecimiento humano. Por lo tanto, si estamos estudiando un sistema estratificado es clave reconocer y definir estás capas.</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-52"></span>
+<img src="Img/Stratified_lake.jpg" alt="Esquema de un lago estratificado. Fuente: IISD Experimental Lakes Area (IISD-ELA)." width="100%" />
+<p class="caption">
+Figura 6.2: Esquema de un lago estratificado. Fuente: IISD Experimental Lakes Area (IISD-ELA).
+</p>
+</div>
+<p>Para determinar donde empiezan y donde acaban estas capas, el paquete <code>rLakeAnalyzer</code> dispone de un función, <code>meta.depths()</code>. Si leemos la información sobre la función vemos que nos devuelve el límite superior e inferior del metalimnion, que a su vez son el limite inferior del epilimnion y el límite superior del hipolimnion. Además, los argumentos obligatorios son los mismo que usamos con <code>thermo.depth()</code>. Así que podemos aplicarla sin problemas.</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="Termoclina.html#cb64-1"></a><span class="kw">meta.depths</span>(<span class="dt">wtr =</span> Temp, <span class="dt">depths =</span> Prof, <span class="dt">seasonal =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## [1] 5.654340 8.370172</code></pre>
+<p>¡Perfecto! Vamos a representarlo todo junto.</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="Termoclina.html#cb66-1"></a><span class="co">#Guardo los límites del metalimnion</span></span>
+<span id="cb66-2"><a href="Termoclina.html#cb66-2"></a>metalimnion &lt;-<span class="st"> </span><span class="kw">meta.depths</span>(<span class="dt">wtr =</span> Temp, <span class="dt">depths =</span> Prof, <span class="dt">seasonal =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb66-3"><a href="Termoclina.html#cb66-3"></a></span>
+<span id="cb66-4"><a href="Termoclina.html#cb66-4"></a><span class="kw">ggplot</span>(Dia_elegido, <span class="kw">aes</span>(<span class="dt">y=</span> depth_calculated, <span class="dt">x =</span> water_temp))<span class="op">+</span></span>
+<span id="cb66-5"><a href="Termoclina.html#cb66-5"></a><span class="st">  </span><span class="kw">geom_path</span>(<span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">size =</span> <span class="dv">3</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Cambiamos un poco la estética dándole color y grosor a la línea</span></span>
+<span id="cb66-6"><a href="Termoclina.html#cb66-6"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> Termoclina)<span class="op">+</span><span class="st"> </span><span class="co">#Línea en la termoclina</span></span>
+<span id="cb66-7"><a href="Termoclina.html#cb66-7"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> metalimnion, <span class="dt">linetype =</span> <span class="dv">2</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Líneas discontinuas defininedo el metalimnion</span></span>
+<span id="cb66-8"><a href="Termoclina.html#cb66-8"></a><span class="st">  </span><span class="kw">scale_y_reverse</span>()<span class="op">+</span><span class="st"> </span><span class="co"># Invertimos la profundidad para que la parte superior sea 0 metros.</span></span>
+<span id="cb66-9"><a href="Termoclina.html#cb66-9"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">position =</span> <span class="st">&quot;top&quot;</span>)<span class="op">+</span><span class="st"> </span><span class="co">#Colocamos el eje arriba</span></span>
+<span id="cb66-10"><a href="Termoclina.html#cb66-10"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Temperatura (ºC)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Profundidad (m)&quot;</span>)<span class="op">+</span></span>
+<span id="cb66-11"><a href="Termoclina.html#cb66-11"></a><span class="st">  </span><span class="kw">theme_classic</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-54-1.png" width="100%" /></p>
+<div id="ejercicios-4" class="section level3">
+<h3><span class="header-section-number">6.3.1</span> Ejercicios</h3>
+<ol style="list-style-type: decimal">
+<li>Prueba a cambiar el argumento <code>seasonal</code>. ¿Qué sucede?</li>
+<li>¿Podrías calcular la profundidad de la termoclina para todos los días del año en el lago Crystal?</li>
+</ol>
+</div>
+</div>
+<div id="estabilidad" class="section level2">
+<h2><span class="header-section-number">6.4</span> Estabilidad</h2>
+<p>La estabilidad de la columna de agua nos va a dar una idea sobre su tendencia a mezclarse o permanecer estratificada. Uno de los índices utilizados para representar la estabilidad de la masa de agua en un lago es el índice de estabilidad de Schmidt. Este indice da un valor sobre la energía que tendríamos que aplicar sobre la superficie para mezclar la columna de agua. Las unidades son, por lo tanto, J/m².</p>
+<p>El paquete <code>rLakeAnalyzer</code>también nos provee de una función para calcular la estabilidad de Schmidt, <code>schmidt.stability()</code>. Echar una ojeada a como se usa.</p>
+<p>Si os habéis fijado, en este caso, a parte de la temperatura y la profundidad, necesitamos darle información sobre la batimetría del lago. <code>bthA</code> es el área que tiene cada capa a una determinada profundidad <code>bthB</code>. Quizás lo veis mejor en la siguiente imagen.</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-56"></span>
+<img src="Graficas/Lago_crystal_contorno.png" alt="Batimetría del lago Crystal." width="100%" />
+<p class="caption">
+Figura 6.3: Batimetría del lago Crystal.
+</p>
+</div>
+<p>Pues bien, a priori, no disponemos de esta información. Quizás buscando en la base de datos de GLEON podríamos encontrar la batimetría del Lago Crystal. De hecho, está pero en un archivo .shp y deberíamos calcular el área. Todo esto se puede hacer con R (de hecho, la imagen de arriba está hecha con R)pero no vamos a abrir esa puerta ahora, ya tenemos bastante…</p>
+<p>De nuevo, el paquete <code>rLakeAnalyzer</code> nos proporciona la solución a nuestros problemas. Existe una función para estimar la curva área-profundidad (también conocida como curva hipsográfica) para un lago. Sólo tenemos que proporcionarle el área de la superficie del lago, la profundidad máxima y la profundidad media. Toda esta información la tenemos disponible en la página de NTL-LTER (North Temperate Lakes US Long-Term Ecological Research Network). Podéis pinchar <a href="https://lter.limnology.wisc.edu/researchsite/crystal-lake">aquí</a>. La profundidad máxima es de 20.4 m, la superficie del lago es de 367000 m² y la profundidad media es de 11.4 m. ¡Al lío!</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="Termoclina.html#cb67-1"></a><span class="co">#Estimamos la batimetría</span></span>
+<span id="cb67-2"><a href="Termoclina.html#cb67-2"></a><span class="kw">approx.bathy</span>(<span class="dt">Zmax =</span> <span class="fl">20.4</span>, <span class="dt">lkeArea =</span> <span class="dv">367000</span>, <span class="dt">Zmean =</span> <span class="fl">11.4</span>) </span></code></pre></div>
+<pre><code>##    depths   Area.at.z
+## 1       0 367000.0000
+## 2       1 331901.4802
+## 3       2 298566.7051
+## 4       3 266995.6747
+## 5       4 237188.3891
+## 6       5 209144.8481
+## 7       6 182865.0519
+## 8       7 158349.0004
+## 9       8 135596.6936
+## 10      9 114608.1315
+## 11     10  95383.3141
+## 12     11  77922.2414
+## 13     12  62224.9135
+## 14     13  48291.3303
+## 15     14  36121.4917
+## 16     15  25715.3979
+## 17     16  17073.0488
+## 18     17  10194.4444
+## 19     18   5079.5848
+## 20     19   1728.4698
+## 21     20    141.0996</code></pre>
+<p>Ahora ya tenemos toda la información necesaria para calcula la estabilidad de Schmidt.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="Termoclina.html#cb69-1"></a><span class="co">#Guardamos la estimación en un objeto</span></span>
+<span id="cb69-2"><a href="Termoclina.html#cb69-2"></a>Batimetria &lt;-<span class="st"> </span><span class="kw">approx.bathy</span>(<span class="dt">Zmax =</span> <span class="fl">20.4</span>, <span class="dt">lkeArea =</span> <span class="dv">367000</span>, <span class="dt">Zmean =</span> <span class="fl">11.4</span>)</span>
+<span id="cb69-3"><a href="Termoclina.html#cb69-3"></a></span>
+<span id="cb69-4"><a href="Termoclina.html#cb69-4"></a><span class="co">#Calculamos la estabilidad de Schmidt</span></span>
+<span id="cb69-5"><a href="Termoclina.html#cb69-5"></a><span class="kw">schmidt.stability</span>(<span class="dt">wtr =</span> Temp, <span class="dt">depths =</span> Prof, <span class="dt">bthA =</span> Batimetria<span class="op">$</span>Area.at.z, <span class="dt">bthD =</span>  Batimetria<span class="op">$</span>depths)</span></code></pre></div>
+<pre><code>##        [,1]
+## [1,] 121.69</code></pre>
+<p>La estabilidad de Schmidt para el día 200 es de 121.69 J/m². Este número nos puede decir poco pero… ¿y si comparamos distintos días?</p>
+<div id="ejercicios-5" class="section level3">
+<h3><span class="header-section-number">6.4.1</span> Ejercicios</h3>
+<ol style="list-style-type: decimal">
+<li><em>¿Para qué sirve el argumento <code>method</code> de la función <code>approx.bathy()</code>? ¿Qué efecto tiene?</em></li>
+<li><em>Vamos a comparar la estabilidad de Schmidt para tres días: el primero que tenemos de 2012, el día 200 y el último que tenemos para 2012.</em></li>
+</ol>
+</div>
+</div>
+<div id="series-temporales" class="section level2">
+<h2><span class="header-section-number">6.5</span> Series temporales</h2>
+<p>Las funciones que hemos visto hasta ahora del paquete <code>rLakeAnalyzer</code> las hemos aplicado a perfiles vertical de un día en concreto. En uno de los ejercicios os animé a calcularais la termoclina para cada día del año 2012. Gracias al paquete <code>dplyr</code>esta tarea no es realmente complicada. Sin embargo, el paquete <code>rLakeAnalyzer</code> posee una versión de cada una de la funciones que hemos visto pero que se puede aplicar a series temporales como la que nosotros tenemos. Echad un vistazo a <code>?ts.thermo.depth</code>.
+Si os dais cuenta, el único inconveniente en que nos piden una estructura de los datos concreta. Para poder aplicarla tenemos que reorganizar la tabla. La tabla tiene que tener una columna llamada datetime con formato de fecha en lugar de día del año y una columna para cada profundidad.
+Lo primero que vamos a hacer es quedarnos solamente con la información del día, de la profundidad y de la temperatura del agua.</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="Termoclina.html#cb71-1"></a><span class="co">#Seleccionamos las variable que nos interesan</span></span>
+<span id="cb71-2"><a href="Termoclina.html#cb71-2"></a>Crystal_temp &lt;-<span class="st"> </span>Crystal_dia <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(daynum, depth_calculated, water_temp)</span></code></pre></div>
+<p>Una vez que hemos seleccionado sólo lo que nos interesa, vamos a convertirlo a forma ancho usando la función <code>spread()</code>.</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="Termoclina.html#cb72-1"></a><span class="co">#Mantenemos la fecha y convertimos la profundidad en variables (columnas) incluyendo el valor de temperatura en cada columna.</span></span>
+<span id="cb72-2"><a href="Termoclina.html#cb72-2"></a>Crystal_ts &lt;-<span class="st"> </span>Crystal_temp <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(<span class="dt">key =</span> depth_calculated, <span class="dt">value =</span> water_temp)</span></code></pre></div>
+<p>Vamos a convertir el día del año en formato fecha y a cambiarle el nombre a las columnas.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="Termoclina.html#cb73-1"></a><span class="co">#Convertimos los días del año en fechas</span></span>
+<span id="cb73-2"><a href="Termoclina.html#cb73-2"></a>Crystal_ts &lt;-<span class="st"> </span>Crystal_ts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate_at</span>(<span class="kw">vars</span>(daynum), as.Date, <span class="dt">origin =</span> <span class="st">&quot;2012-01-01&quot;</span>)</span>
+<span id="cb73-3"><a href="Termoclina.html#cb73-3"></a><span class="co">#Cambiamos el nombre de la columna &quot;daynum&quot; a &quot;datetime&quot;</span></span>
+<span id="cb73-4"><a href="Termoclina.html#cb73-4"></a>Crystal_ts &lt;-<span class="st"> </span>Crystal_ts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">datetime =</span> daynum)</span>
+<span id="cb73-5"><a href="Termoclina.html#cb73-5"></a><span class="co">#Añadimos &quot;wtr_&quot; delante del número de cada profundidad</span></span>
+<span id="cb73-6"><a href="Termoclina.html#cb73-6"></a>Crystal_ts &lt;-<span class="st"> </span>Crystal_ts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename_if</span>(is.numeric, <span class="op">~</span><span class="kw">paste</span>(<span class="st">&quot;wtr_&quot;</span>, ., <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>))</span>
+<span id="cb73-7"><a href="Termoclina.html#cb73-7"></a>Crystal_ts</span></code></pre></div>
+<pre><code>## # A tibble: 189 x 20
+##    datetime   wtr_0 wtr_1 wtr_2 wtr_3 wtr_4 wtr_5 wtr_6 wtr_7 wtr_8 wtr_9 wtr_10
+##    &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+##  1 2012-03-23  8.32  6.54  6.41  5.92  5.74  5.66  5.51  5.30  5.14  5.03   4.98
+##  2 2012-03-24 NA     7.03  6.79  6.23  5.85  5.79  5.61  5.43  5.29  5.13   5.04
+##  3 2012-03-25 NA     7.78  7.12  6.32  6.06  5.90  5.78  5.67  5.42  5.28   5.11
+##  4 2012-03-26  8.20  8.11  7.99  7.07  6.04  5.88  5.66  5.60  5.43  5.26   5.06
+##  5 2012-03-27 NA     7.18  7.04  7     6.05 NA    NA    NA    NA     5.11   5.13
+##  6 2012-03-28 NA     6.50  6.35  6.32  6.30  6.26  6.20  6.16  5.98  5.83   5.46
+##  7 2012-03-29 NA     6.36  6.34  6.32  6.31  6.31  6.28  6.12  5.81  5.74   5.69
+##  8 2012-03-30  6.02  6.60  6.28  6.25  6.22  6.18  6.16  6.15  6.04  5.98   5.86
+##  9 2012-03-31 NA     6.23  6.23  6.21  6.18  6.16  6.15  6.13  6.12  6.12   6.06
+## 10 2012-04-01  6.18  6.16  6.10  6.08  6.07  6.06  6.06  6.04  6.04  6.04   6.02
+## # … with 179 more rows, and 8 more variables: wtr_11 &lt;dbl&gt;, wtr_12 &lt;dbl&gt;,
+## #   wtr_13 &lt;dbl&gt;, wtr_14 &lt;dbl&gt;, wtr_15 &lt;dbl&gt;, wtr_16 &lt;dbl&gt;, wtr_17 &lt;dbl&gt;,
+## #   wtr_18 &lt;dbl&gt;</code></pre>
+<p>Ya tenemos los datos ordenados para aplicar la función <code>ts.thermo.depth()</code>. Ahora vamos a intentar calcular la profundidad de la termoclina para cada día.</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="Termoclina.html#cb75-1"></a>termoclina_diaria &lt;-<span class="st"> </span><span class="kw">ts.thermo.depth</span>(Crystal_ts)</span></code></pre></div>
+<p>Vemos que tenemos muchos días con valor <code>NA</code>. Esto se debe a que si la función encuentra un valor de <code>NA</code>en el perfil de temperatura devuelve <code>NA</code>. Para evitar esto podemos añadir el argumento <code>na.rm = TRUE</code>.</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="Termoclina.html#cb76-1"></a>termoclina_diaria &lt;-<span class="st"> </span><span class="kw">ts.thermo.depth</span>(Crystal_ts, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<p>Ahora vamos a guardar la información en la carpeta <code>Datos</code>.</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="Termoclina.html#cb77-1"></a><span class="co">#Guardamos los perfiles de temperatura de cada día</span></span>
+<span id="cb77-2"><a href="Termoclina.html#cb77-2"></a><span class="kw">write_csv</span>(Crystal_ts, <span class="st">&quot;Datos/Crystal_ts.csv&quot;</span>)</span>
+<span id="cb77-3"><a href="Termoclina.html#cb77-3"></a><span class="co">#Guardamos la profundidad de la termoclina</span></span>
+<span id="cb77-4"><a href="Termoclina.html#cb77-4"></a><span class="kw">write_csv</span>(termoclina_diaria, <span class="st">&quot;Datos/Termoclina.csv&quot;</span>)</span></code></pre></div>
+<div id="ejercicios-6" class="section level3">
+<h3><span class="header-section-number">6.5.1</span> Ejercicios</h3>
+<ol style="list-style-type: decimal">
+<li><em>Representa la profundidad de la termoclina para cada día.</em></li>
+<li><em>Calcula la estabilidad de Schmidt para todos los días.</em></li>
+<li><em>Representa el valor de la estabilidad de Schmidt para cada día.</em></li>
+<li><em>Calcula los límites del metalimnion para todos los días.</em></li>
+</ol>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Tidyverse.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Contour.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "serif",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["PracticasESA.pdf", "PracticasESA.mobi"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

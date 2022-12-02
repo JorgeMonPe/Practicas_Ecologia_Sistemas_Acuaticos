@@ -1,0 +1,187 @@
+# Descargar los datos de la red GLEON {#Descarga}
+
+Para ello, visitamos la página de la red [GLEON](https://gleon.org/) y nos vamos al apartado de [datos](https://gleon.org/data). En esta sección podemos encontrar la [política de datos de GLEON](https://gleon.org/sites/default/files/pdf/data/2009_October_15_GLEON_data_access_policy.pdf), básicamente se apuesta por una ciencia colaborativa en la que los datos quedan a disposición de la comunidad para cualquier fin de investigación, académico, educativo o cualquier otro, siempre que no haya un interés lucrativo detrás y respetando algunos principios de comunicación con los responsables de los datos. Como se muestra en esta sección, a los datos de GLEON se puede acceder a través de tres buscadores [EDI](https://portal.edirepository.org/nis/home.jsp), [DataONE](https://search.dataone.org/data) o [Google data set](https://datasetsearch.research.google.com/).
+
+Pues bien, para este práctica vamos a trabajar, en concreto, con datos del [lago Crystal](https://lter.limnology.wisc.edu/researchsite/crystal-lake). 
+Así que utilizando el buscador que más sea de vuestro agrado lanzamos la siguiente búsqueda: *crystal lake*.
+Entre los resultados obtenidos (hay bastante información como podéis observar), vamos a seleccionar los datos derivados del proyecto [North Temperate Lakes Long Term Ecologycal Research (NTL-LTER)](https://lter.limnology.wisc.edu/index.php/) que nos ofrecen datos de temperatura, oxígeno disuelto, clorofila *a* y pH desde 2011 hasta 2014. Si no pudierais encontrarlos, podéis pinchar [aquí: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014](https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-ntl.303.20). 
+
+En esa página que acabáis de abrir tenéis un sumario con toda la información necesario sobre el paquete de datos (*Title, Creators, Publication Date, Citation, Abstract, Spatial Coverage, Package ID, Resources, Intellectual Rights, Digital Object Identifier, PASTA Identifier, Code Generation, Provenance, Journal Citations*). Las que más nos van a interesar por el momento son *Abstract, Resources y Code Generation*. La primera de ellas es un resumen que nos explica como han sido recogido los datos y algunas particularidades que debemos saber, en la segunda tenemos directamente los archivos con los datos para descargarlos en formato \*.csv y una opción muy interesante, [*View Full Metadata*](https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-ntl.303.20), en la que si desplegamos *Data Entities* podemos ver información sobre las variables que aparecen en la tabla de datos como, por ejemplo, las unidades en las que están medidas.
+
+En este caso, disponemos solo de un fichero. Para descargar los datos tenemos dos opciones:
+
+  1. Podemos pinchar directamente en el archivo y descargarlo a través del navegador. *Name:* High Resolution Water Temperature Dissolved Oxygen Chlorophyll pH - Crystal Lake *File:* ntl303_v1_0.csv (120.5 MiB; 22 downloads). Si optamos por esta opción, posteriormente habrá que importar los datos a R.
+  2. Otra opción mucho más cómoda es la de usar un script de R que ya nos han preparado para facilitarnos la descarga e importación. Para ello, tenemos dos opciones también: 
+  + Pinchamos en el [icono de R](https://portal.edirepository.org/nis/codeGeneration?packageId=knb-lter-ntl.117.38&statisticalFileType=r) en el apartado *Code Generation*. 
+  + Pinchamos en la opción [tidyr](https://portal.edirepository.org/nis/codeGeneration?packageId=knb-lter-ntl.303.20&statisticalFileType=tidyr) en el apartado *Code Generation*. Os recomiendo usar esta última, es la que vemos más abajo y, además, si no lo tenemos instalado, instala automáticamente el paquete [Tidyverse](https://www.tidyverse.org/). `Tidyverse` es en realidad un conjunto de paquetes de R especialmente diseñado para la ciencia de datos que nos vendrá de maravilla para esta práctica.
+  
+  Independientemente por cual os decantéis, debéis abrir el archivo pinchando en *File Download: knb-lter-ntl.303.20.r* o *File Download: knb-lter-ntl.303.20.tidyr* y se abrirá automáticamente con R, si no es así, lo descargáis y lo abrís posteriormente con R. Una vez abierto ya podéis ejecutar el script (`Ctrl+A` y después `Crtl+Enter`).
+  Como veis también hay opción para descargar y trabajar directamente los datos con otras herramientas, si a alguno le pica la curiosidad ¡adelante!. En esta práctica como hemos dicho vamos a usar R, debido a que es una herramienta gratuita, de código abierto y libre. Además es ampliamente usado en investigación debido a su naturaleza libre y colaborativa. En fin, si más dilaciones, podéis descargar el script, abrirlo con RStudio y ejecutarlo ¡A ver qué pasa!.
+  
+Esta es la pinta que tiene el script:
+```{r eval = FALSE}
+# Package ID: knb-lter-ntl.303.20 Cataloging System:https://pasta.edirepository.org.
+# Data set title: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014.
+# Data set creator:  John Magnuson - University of Wisconsin 
+# Data set creator:  Stephen Carpenter - University of Wisconsin 
+# Data set creator:  Emily Stanley - University of Wisconsin 
+# Data set creator:  NTL Lead PI - University of Wisconsin 
+# Metadata Provider:  NTL Information Manager - University of Wisconsin 
+# Contact:  NTL Information Manager -  University of Wisconsin  - ntl.infomgr@gmail.com
+# Contact:  NTL Lead PI -  University of Wisconsin  - ntl.leadpi@gmail.com
+# Stylesheet for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@Virginia.edu 
+#
+#install package tidyverse if not already installed
+if(!require(tidyverse)){ install.packages("tidyverse") }  
+library("tidyverse") 
+infile1 <- trimws("https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/303/20/b9b3b932deec8f3e71fb8d70cacf6a0e") 
+infile1 <-sub("^https","http",infile1)
+# This creates a tibble named: dt1 
+dt1 <-read_delim(infile1  
+                 ,delim=","   
+                 ,skip=1 
+                 , col_names=c( 
+                   "sampledate",   
+                   "year4",   
+                   "daynum",   
+                   "sample_time",   
+                   "depth_calculated",   
+                   "wtaer_temp",   
+                   "flag_water_temp",   
+                   "pH",   
+                   "flag_ph",   
+                   "chlorophylla",   
+                   "flag_chlorophylla",   
+                   "opt_do2",   
+                   "flag_do2",   
+                   "opt_dosat_raw",   
+                   "flag_opt_dosat_raw"   ), 
+                 col_types=list(
+                   col_character(), 
+                   col_number() , 
+                   col_number() , 
+                   col_character(), 
+                   col_number() , 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character()), 
+                 na=c(" ",".","NA")  )
+
+
+# Observed issues when reading the data. An empty list is good!
+problems(dt1) 
+# Here is the structure of the input data tibble: 
+glimpse(dt1) 
+# And some statistical summaries of the data 
+summary(dt1) 
+# Get more details on character variables
+
+summary(as.factor(dt1$flag_water_temp)) 
+summary(as.factor(dt1$flag_ph)) 
+summary(as.factor(dt1$flag_chlorophylla)) 
+summary(as.factor(dt1$flag_do2)) 
+summary(as.factor(dt1$flag_opt_dosat_raw))
+```
+
+Esta primera parte del script es para descargar los datos (igual que arriba, salvo que me he tomado el tiempo de comentar algunas líneas):
+
+```{r eval = FALSE}
+# Package ID: knb-lter-ntl.303.20 Cataloging System:https://pasta.edirepository.org.
+# Data set title: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014.
+# Data set creator:  John Magnuson - University of Wisconsin 
+# Data set creator:  Stephen Carpenter - University of Wisconsin 
+# Data set creator:  Emily Stanley - University of Wisconsin 
+# Data set creator:  NTL Lead PI - University of Wisconsin 
+# Metadata Provider:  NTL Information Manager - University of Wisconsin 
+# Contact:  NTL Information Manager -  University of Wisconsin  - ntl.infomgr@gmail.com
+# Contact:  NTL Lead PI -  University of Wisconsin  - ntl.leadpi@gmail.com
+# Stylesheet for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@Virginia.edu 
+#
+#install package tidyverse if not already installed. Aquí cargamos el conjunto de paquetes que están dentro de "tidyverse" y si no lo tuvieramos instaldo, han pensado en nosotros y, se instala solo.
+if(!require(tidyverse)){ install.packages("tidyverse") }  
+library("tidyverse") 
+infile1 <- trimws("https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/303/20/b9b3b932deec8f3e71fb8d70cacf6a0e") 
+#Esta, de arriba, es la dirección de donde descarga los datos
+infile1 <-sub("^https","http",infile1)
+# This creates a tibble named: dt1 
+dt1 <-read_delim(infile1  #Crea un objeto donde descarga los datos de la dirección que le damos, guardada en el objeto con nombre "infile1"
+                 ,delim=","   
+                 ,skip=1 
+                 , col_names=c(        #Asigna nombre a las columnas
+                   "sampledate",   
+                   "year4",   
+                   "daynum",   
+                   "sample_time",   
+                   "depth_calculated",   
+                   "wtaer_temp",   
+                   "flag_water_temp",   
+                   "pH",   
+                   "flag_ph",   
+                   "chlorophylla",   
+                   "flag_chlorophylla",   
+                   "opt_do2",   
+                   "flag_do2",   
+                   "opt_dosat_raw",   
+                   "flag_opt_dosat_raw"   ), 
+                 col_types=list(
+                   col_character(), 
+                   col_number() , 
+                   col_number() , 
+                   col_character(), 
+                   col_number() , 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character(), 
+                   col_number() ,  
+                   col_character()), 
+                 na=c(" ",".","NA")  )
+               
+```
+
+Este trocito de código que sigue es para corregir algún problema de formato que se haya podido introducir debido a algún error en la base de datos.
+
+```{r eval = FALSE}
+# Observed issues when reading the data. An empty list is good!
+problems(dt1) 
+```                
+
+Este último trozo es simplemente para ver la estructura de los datos y un resumen de cada una de la variables. Este trozo no es necesario que lo ejecutéis.
+
+```{r eval = FALSE}
+# Here is the structure of the input data tibble: 
+glimpse(dt1) 
+# And some statistical summaries of the data 
+summary(dt1) 
+# Get more details on character variables
+
+summary(as.factor(dt1$flag_water_temp)) 
+summary(as.factor(dt1$flag_ph)) 
+summary(as.factor(dt1$flag_chlorophylla)) 
+summary(as.factor(dt1$flag_do2)) 
+summary(as.factor(dt1$flag_opt_dosat_raw))
+```
+
+Bien, una vez ejecutado el script, ya debemos tener los datos en nuestro entorno de RStudio en un tipo de objeto denominado data.frame (básicamente una tabla de datos). Vamos a ver que pinta tienen:
+
+```{r eval = FALSE}
+head(dt1)
+```
+
+Por último, los vamos a guardar en la carpeta "Datos" que hemos creado.
+
+```{r eval = FALSE}
+write.csv(dt1, "./Datos/Datos_Crystal.csv", row.names = FALSE)
+```
+

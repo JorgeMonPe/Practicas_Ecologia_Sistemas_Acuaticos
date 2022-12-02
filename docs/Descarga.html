@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Descargar los datos de la red GLEON | Prácticas de Ecología de Sistemas Acuáticos</title>
+  <meta name="description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Descargar los datos de la red GLEON | Prácticas de Ecología de Sistemas Acuáticos" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Descargar los datos de la red GLEON | Prácticas de Ecología de Sistemas Acuáticos" />
+  
+  <meta name="twitter:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+<meta name="author" content="Jorge Juan Montes Pérez (jmontesp@uma.es)" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="estructura-de-la-práctica.html"/>
+<link rel="next" href="PrimerosPasos.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.js');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+<script>
+document.write('<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>')
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Ecología de Sistemas Acuáticos</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>¿Cómo seguir la práctica?</a></li>
+<li class="chapter" data-level="1" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>1</b> Introducción</a></li>
+<li class="chapter" data-level="2" data-path="estructura-de-la-práctica.html"><a href="estructura-de-la-práctica.html"><i class="fa fa-check"></i><b>2</b> Estructura de la práctica</a></li>
+<li class="chapter" data-level="3" data-path="Descarga.html"><a href="Descarga.html"><i class="fa fa-check"></i><b>3</b> Descargar los datos de la red GLEON</a></li>
+<li class="chapter" data-level="4" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html"><i class="fa fa-check"></i><b>4</b> Primero pasos</a><ul>
+<li class="chapter" data-level="4.1" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html#ejercicios"><i class="fa fa-check"></i><b>4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Tidyverse.html"><a href="Tidyverse.html"><i class="fa fa-check"></i><b>5</b> Paquetes importantes y sus funciones básicas</a><ul>
+<li class="chapter" data-level="5.1" data-path="Tidyverse.html"><a href="Tidyverse.html#importar-datos"><i class="fa fa-check"></i><b>5.1</b> Importar datos</a></li>
+<li class="chapter" data-level="5.2" data-path="Tidyverse.html"><a href="Tidyverse.html#organizar-tablas"><i class="fa fa-check"></i><b>5.2</b> Organizar tablas</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-1"><i class="fa fa-check"></i><b>5.2.1</b> Ejercicios:</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Tidyverse.html"><a href="Tidyverse.html#gráficas"><i class="fa fa-check"></i><b>5.3</b> Gráficas</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-2"><i class="fa fa-check"></i><b>5.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="Tidyverse.html"><a href="Tidyverse.html#trabajar-con-fechas"><i class="fa fa-check"></i><b>5.4</b> Trabajar con fechas</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-3"><i class="fa fa-check"></i><b>5.4.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Termoclina.html"><a href="Termoclina.html"><i class="fa fa-check"></i><b>6</b> Estabilidad térmica de la columna de agua</a><ul>
+<li class="chapter" data-level="6.1" data-path="Termoclina.html"><a href="Termoclina.html#perfil-vertical"><i class="fa fa-check"></i><b>6.1</b> Perfil vertical</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicio"><i class="fa fa-check"></i><b>6.1.1</b> Ejercicio</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="Termoclina.html"><a href="Termoclina.html#termoclina"><i class="fa fa-check"></i><b>6.2</b> Termoclina</a></li>
+<li class="chapter" data-level="6.3" data-path="Termoclina.html"><a href="Termoclina.html#capas-en-un-lago-estratificado"><i class="fa fa-check"></i><b>6.3</b> Capas en un lago estratificado</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-4"><i class="fa fa-check"></i><b>6.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="Termoclina.html"><a href="Termoclina.html#estabilidad"><i class="fa fa-check"></i><b>6.4</b> Estabilidad</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-5"><i class="fa fa-check"></i><b>6.4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="Termoclina.html"><a href="Termoclina.html#series-temporales"><i class="fa fa-check"></i><b>6.5</b> Series temporales</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-6"><i class="fa fa-check"></i><b>6.5.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Contour.html"><a href="Contour.html"><i class="fa fa-check"></i><b>7</b> Gráficas de contorno</a><ul>
+<li class="chapter" data-level="7.0.1" data-path="Contour.html"><a href="Contour.html#ejercicios-7"><i class="fa fa-check"></i><b>7.0.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="bibliografía.html"><a href="bibliografía.html"><i class="fa fa-check"></i>Bibliografía</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org/" target="blank">Realizado con bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Prácticas de Ecología de Sistemas Acuáticos</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="Descarga" class="section level1">
+<h1><span class="header-section-number">3</span> Descargar los datos de la red GLEON</h1>
+<p>Para ello, visitamos la página de la red <a href="https://gleon.org/">GLEON</a> y nos vamos al apartado de <a href="https://gleon.org/data">datos</a>. En esta sección podemos encontrar la <a href="https://gleon.org/sites/default/files/pdf/data/2009_October_15_GLEON_data_access_policy.pdf">política de datos de GLEON</a>, básicamente se apuesta por una ciencia colaborativa en la que los datos quedan a disposición de la comunidad para cualquier fin de investigación, académico, educativo o cualquier otro, siempre que no haya un interés lucrativo detrás y respetando algunos principios de comunicación con los responsables de los datos. Como se muestra en esta sección, a los datos de GLEON se puede acceder a través de tres buscadores <a href="https://portal.edirepository.org/nis/home.jsp">EDI</a>, <a href="https://search.dataone.org/data">DataONE</a> o <a href="https://datasetsearch.research.google.com/">Google data set</a>.</p>
+<p>Pues bien, para este práctica vamos a trabajar, en concreto, con datos del <a href="https://lter.limnology.wisc.edu/researchsite/crystal-lake">lago Crystal</a>.
+Así que utilizando el buscador que más sea de vuestro agrado lanzamos la siguiente búsqueda: <em>crystal lake</em>.
+Entre los resultados obtenidos (hay bastante información como podéis observar), vamos a seleccionar los datos derivados del proyecto <a href="https://lter.limnology.wisc.edu/index.php/">North Temperate Lakes Long Term Ecologycal Research (NTL-LTER)</a> que nos ofrecen datos de temperatura, oxígeno disuelto, clorofila <em>a</em> y pH desde 2011 hasta 2014. Si no pudierais encontrarlos, podéis pinchar <a href="https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-ntl.303.20">aquí: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014</a>.</p>
+<p>En esa página que acabáis de abrir tenéis un sumario con toda la información necesario sobre el paquete de datos (<em>Title, Creators, Publication Date, Citation, Abstract, Spatial Coverage, Package ID, Resources, Intellectual Rights, Digital Object Identifier, PASTA Identifier, Code Generation, Provenance, Journal Citations</em>). Las que más nos van a interesar por el momento son <em>Abstract, Resources y Code Generation</em>. La primera de ellas es un resumen que nos explica como han sido recogido los datos y algunas particularidades que debemos saber, en la segunda tenemos directamente los archivos con los datos para descargarlos en formato *.csv y una opción muy interesante, <a href="https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-ntl.303.20"><em>View Full Metadata</em></a>, en la que si desplegamos <em>Data Entities</em> podemos ver información sobre las variables que aparecen en la tabla de datos como, por ejemplo, las unidades en las que están medidas.</p>
+<p>En este caso, disponemos solo de un fichero. Para descargar los datos tenemos dos opciones:</p>
+<ol style="list-style-type: decimal">
+<li>Podemos pinchar directamente en el archivo y descargarlo a través del navegador. <em>Name:</em> High Resolution Water Temperature Dissolved Oxygen Chlorophyll pH - Crystal Lake <em>File:</em> ntl303_v1_0.csv (120.5 MiB; 22 downloads). Si optamos por esta opción, posteriormente habrá que importar los datos a R.</li>
+<li>Otra opción mucho más cómoda es la de usar un script de R que ya nos han preparado para facilitarnos la descarga e importación. Para ello, tenemos dos opciones también:</li>
+</ol>
+<ul>
+<li>Pinchamos en el <a href="https://portal.edirepository.org/nis/codeGeneration?packageId=knb-lter-ntl.117.38&amp;statisticalFileType=r">icono de R</a> en el apartado <em>Code Generation</em>.</li>
+<li>Pinchamos en la opción <a href="https://portal.edirepository.org/nis/codeGeneration?packageId=knb-lter-ntl.303.20&amp;statisticalFileType=tidyr">tidyr</a> en el apartado <em>Code Generation</em>. Os recomiendo usar esta última, es la que vemos más abajo y, además, si no lo tenemos instalado, instala automáticamente el paquete <a href="https://www.tidyverse.org/">Tidyverse</a>. <code>Tidyverse</code> es en realidad un conjunto de paquetes de R especialmente diseñado para la ciencia de datos que nos vendrá de maravilla para esta práctica.</li>
+</ul>
+<p>Independientemente por cual os decantéis, debéis abrir el archivo pinchando en <em>File Download: knb-lter-ntl.303.20.r</em> o <em>File Download: knb-lter-ntl.303.20.tidyr</em> y se abrirá automáticamente con R, si no es así, lo descargáis y lo abrís posteriormente con R. Una vez abierto ya podéis ejecutar el script (<code>Ctrl+A</code> y después <code>Crtl+Enter</code>).
+Como veis también hay opción para descargar y trabajar directamente los datos con otras herramientas, si a alguno le pica la curiosidad ¡adelante!. En esta práctica como hemos dicho vamos a usar R, debido a que es una herramienta gratuita, de código abierto y libre. Además es ampliamente usado en investigación debido a su naturaleza libre y colaborativa. En fin, si más dilaciones, podéis descargar el script, abrirlo con RStudio y ejecutarlo ¡A ver qué pasa!.</p>
+<p>Esta es la pinta que tiene el script:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="Descarga.html#cb1-1"></a><span class="co"># Package ID: knb-lter-ntl.303.20 Cataloging System:https://pasta.edirepository.org.</span></span>
+<span id="cb1-2"><a href="Descarga.html#cb1-2"></a><span class="co"># Data set title: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014.</span></span>
+<span id="cb1-3"><a href="Descarga.html#cb1-3"></a><span class="co"># Data set creator:  John Magnuson - University of Wisconsin </span></span>
+<span id="cb1-4"><a href="Descarga.html#cb1-4"></a><span class="co"># Data set creator:  Stephen Carpenter - University of Wisconsin </span></span>
+<span id="cb1-5"><a href="Descarga.html#cb1-5"></a><span class="co"># Data set creator:  Emily Stanley - University of Wisconsin </span></span>
+<span id="cb1-6"><a href="Descarga.html#cb1-6"></a><span class="co"># Data set creator:  NTL Lead PI - University of Wisconsin </span></span>
+<span id="cb1-7"><a href="Descarga.html#cb1-7"></a><span class="co"># Metadata Provider:  NTL Information Manager - University of Wisconsin </span></span>
+<span id="cb1-8"><a href="Descarga.html#cb1-8"></a><span class="co"># Contact:  NTL Information Manager -  University of Wisconsin  - ntl.infomgr@gmail.com</span></span>
+<span id="cb1-9"><a href="Descarga.html#cb1-9"></a><span class="co"># Contact:  NTL Lead PI -  University of Wisconsin  - ntl.leadpi@gmail.com</span></span>
+<span id="cb1-10"><a href="Descarga.html#cb1-10"></a><span class="co"># Stylesheet for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@Virginia.edu </span></span>
+<span id="cb1-11"><a href="Descarga.html#cb1-11"></a><span class="co">#</span></span>
+<span id="cb1-12"><a href="Descarga.html#cb1-12"></a><span class="co">#install package tidyverse if not already installed</span></span>
+<span id="cb1-13"><a href="Descarga.html#cb1-13"></a><span class="cf">if</span>(<span class="op">!</span><span class="kw">require</span>(tidyverse)){ <span class="kw">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>) }  </span>
+<span id="cb1-14"><a href="Descarga.html#cb1-14"></a><span class="kw">library</span>(<span class="st">&quot;tidyverse&quot;</span>) </span>
+<span id="cb1-15"><a href="Descarga.html#cb1-15"></a>infile1 &lt;-<span class="st"> </span><span class="kw">trimws</span>(<span class="st">&quot;https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/303/20/b9b3b932deec8f3e71fb8d70cacf6a0e&quot;</span>) </span>
+<span id="cb1-16"><a href="Descarga.html#cb1-16"></a>infile1 &lt;-<span class="kw">sub</span>(<span class="st">&quot;^https&quot;</span>,<span class="st">&quot;http&quot;</span>,infile1)</span>
+<span id="cb1-17"><a href="Descarga.html#cb1-17"></a><span class="co"># This creates a tibble named: dt1 </span></span>
+<span id="cb1-18"><a href="Descarga.html#cb1-18"></a>dt1 &lt;-<span class="kw">read_delim</span>(infile1  </span>
+<span id="cb1-19"><a href="Descarga.html#cb1-19"></a>                 ,<span class="dt">delim=</span><span class="st">&quot;,&quot;</span>   </span>
+<span id="cb1-20"><a href="Descarga.html#cb1-20"></a>                 ,<span class="dt">skip=</span><span class="dv">1</span> </span>
+<span id="cb1-21"><a href="Descarga.html#cb1-21"></a>                 , <span class="dt">col_names=</span><span class="kw">c</span>( </span>
+<span id="cb1-22"><a href="Descarga.html#cb1-22"></a>                   <span class="st">&quot;sampledate&quot;</span>,   </span>
+<span id="cb1-23"><a href="Descarga.html#cb1-23"></a>                   <span class="st">&quot;year4&quot;</span>,   </span>
+<span id="cb1-24"><a href="Descarga.html#cb1-24"></a>                   <span class="st">&quot;daynum&quot;</span>,   </span>
+<span id="cb1-25"><a href="Descarga.html#cb1-25"></a>                   <span class="st">&quot;sample_time&quot;</span>,   </span>
+<span id="cb1-26"><a href="Descarga.html#cb1-26"></a>                   <span class="st">&quot;depth_calculated&quot;</span>,   </span>
+<span id="cb1-27"><a href="Descarga.html#cb1-27"></a>                   <span class="st">&quot;wtaer_temp&quot;</span>,   </span>
+<span id="cb1-28"><a href="Descarga.html#cb1-28"></a>                   <span class="st">&quot;flag_water_temp&quot;</span>,   </span>
+<span id="cb1-29"><a href="Descarga.html#cb1-29"></a>                   <span class="st">&quot;pH&quot;</span>,   </span>
+<span id="cb1-30"><a href="Descarga.html#cb1-30"></a>                   <span class="st">&quot;flag_ph&quot;</span>,   </span>
+<span id="cb1-31"><a href="Descarga.html#cb1-31"></a>                   <span class="st">&quot;chlorophylla&quot;</span>,   </span>
+<span id="cb1-32"><a href="Descarga.html#cb1-32"></a>                   <span class="st">&quot;flag_chlorophylla&quot;</span>,   </span>
+<span id="cb1-33"><a href="Descarga.html#cb1-33"></a>                   <span class="st">&quot;opt_do2&quot;</span>,   </span>
+<span id="cb1-34"><a href="Descarga.html#cb1-34"></a>                   <span class="st">&quot;flag_do2&quot;</span>,   </span>
+<span id="cb1-35"><a href="Descarga.html#cb1-35"></a>                   <span class="st">&quot;opt_dosat_raw&quot;</span>,   </span>
+<span id="cb1-36"><a href="Descarga.html#cb1-36"></a>                   <span class="st">&quot;flag_opt_dosat_raw&quot;</span>   ), </span>
+<span id="cb1-37"><a href="Descarga.html#cb1-37"></a>                 <span class="dt">col_types=</span><span class="kw">list</span>(</span>
+<span id="cb1-38"><a href="Descarga.html#cb1-38"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-39"><a href="Descarga.html#cb1-39"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb1-40"><a href="Descarga.html#cb1-40"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb1-41"><a href="Descarga.html#cb1-41"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-42"><a href="Descarga.html#cb1-42"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb1-43"><a href="Descarga.html#cb1-43"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb1-44"><a href="Descarga.html#cb1-44"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-45"><a href="Descarga.html#cb1-45"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb1-46"><a href="Descarga.html#cb1-46"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-47"><a href="Descarga.html#cb1-47"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb1-48"><a href="Descarga.html#cb1-48"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-49"><a href="Descarga.html#cb1-49"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb1-50"><a href="Descarga.html#cb1-50"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb1-51"><a href="Descarga.html#cb1-51"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb1-52"><a href="Descarga.html#cb1-52"></a>                   <span class="kw">col_character</span>()), </span>
+<span id="cb1-53"><a href="Descarga.html#cb1-53"></a>                 <span class="dt">na=</span><span class="kw">c</span>(<span class="st">&quot; &quot;</span>,<span class="st">&quot;.&quot;</span>,<span class="st">&quot;NA&quot;</span>)  )</span>
+<span id="cb1-54"><a href="Descarga.html#cb1-54"></a></span>
+<span id="cb1-55"><a href="Descarga.html#cb1-55"></a></span>
+<span id="cb1-56"><a href="Descarga.html#cb1-56"></a><span class="co"># Observed issues when reading the data. An empty list is good!</span></span>
+<span id="cb1-57"><a href="Descarga.html#cb1-57"></a><span class="kw">problems</span>(dt1) </span>
+<span id="cb1-58"><a href="Descarga.html#cb1-58"></a><span class="co"># Here is the structure of the input data tibble: </span></span>
+<span id="cb1-59"><a href="Descarga.html#cb1-59"></a><span class="kw">glimpse</span>(dt1) </span>
+<span id="cb1-60"><a href="Descarga.html#cb1-60"></a><span class="co"># And some statistical summaries of the data </span></span>
+<span id="cb1-61"><a href="Descarga.html#cb1-61"></a><span class="kw">summary</span>(dt1) </span>
+<span id="cb1-62"><a href="Descarga.html#cb1-62"></a><span class="co"># Get more details on character variables</span></span>
+<span id="cb1-63"><a href="Descarga.html#cb1-63"></a></span>
+<span id="cb1-64"><a href="Descarga.html#cb1-64"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_water_temp)) </span>
+<span id="cb1-65"><a href="Descarga.html#cb1-65"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_ph)) </span>
+<span id="cb1-66"><a href="Descarga.html#cb1-66"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_chlorophylla)) </span>
+<span id="cb1-67"><a href="Descarga.html#cb1-67"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_do2)) </span>
+<span id="cb1-68"><a href="Descarga.html#cb1-68"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_opt_dosat_raw))</span></code></pre></div>
+<p>Esta primera parte del script es para descargar los datos (igual que arriba, salvo que me he tomado el tiempo de comentar algunas líneas):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="Descarga.html#cb2-1"></a><span class="co"># Package ID: knb-lter-ntl.303.20 Cataloging System:https://pasta.edirepository.org.</span></span>
+<span id="cb2-2"><a href="Descarga.html#cb2-2"></a><span class="co"># Data set title: North Temperate Lakes LTER High Frequency Water Temperature Data, Dissolved Oxygen, Chlorophyll, pH - Crystal Lake 2011 - 2014.</span></span>
+<span id="cb2-3"><a href="Descarga.html#cb2-3"></a><span class="co"># Data set creator:  John Magnuson - University of Wisconsin </span></span>
+<span id="cb2-4"><a href="Descarga.html#cb2-4"></a><span class="co"># Data set creator:  Stephen Carpenter - University of Wisconsin </span></span>
+<span id="cb2-5"><a href="Descarga.html#cb2-5"></a><span class="co"># Data set creator:  Emily Stanley - University of Wisconsin </span></span>
+<span id="cb2-6"><a href="Descarga.html#cb2-6"></a><span class="co"># Data set creator:  NTL Lead PI - University of Wisconsin </span></span>
+<span id="cb2-7"><a href="Descarga.html#cb2-7"></a><span class="co"># Metadata Provider:  NTL Information Manager - University of Wisconsin </span></span>
+<span id="cb2-8"><a href="Descarga.html#cb2-8"></a><span class="co"># Contact:  NTL Information Manager -  University of Wisconsin  - ntl.infomgr@gmail.com</span></span>
+<span id="cb2-9"><a href="Descarga.html#cb2-9"></a><span class="co"># Contact:  NTL Lead PI -  University of Wisconsin  - ntl.leadpi@gmail.com</span></span>
+<span id="cb2-10"><a href="Descarga.html#cb2-10"></a><span class="co"># Stylesheet for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@Virginia.edu </span></span>
+<span id="cb2-11"><a href="Descarga.html#cb2-11"></a><span class="co">#</span></span>
+<span id="cb2-12"><a href="Descarga.html#cb2-12"></a><span class="co">#install package tidyverse if not already installed. Aquí cargamos el conjunto de paquetes que están dentro de &quot;tidyverse&quot; y si no lo tuvieramos instaldo, han pensado en nosotros y, se instala solo.</span></span>
+<span id="cb2-13"><a href="Descarga.html#cb2-13"></a><span class="cf">if</span>(<span class="op">!</span><span class="kw">require</span>(tidyverse)){ <span class="kw">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>) }  </span>
+<span id="cb2-14"><a href="Descarga.html#cb2-14"></a><span class="kw">library</span>(<span class="st">&quot;tidyverse&quot;</span>) </span>
+<span id="cb2-15"><a href="Descarga.html#cb2-15"></a>infile1 &lt;-<span class="st"> </span><span class="kw">trimws</span>(<span class="st">&quot;https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/303/20/b9b3b932deec8f3e71fb8d70cacf6a0e&quot;</span>) </span>
+<span id="cb2-16"><a href="Descarga.html#cb2-16"></a><span class="co">#Esta, de arriba, es la dirección de donde descarga los datos</span></span>
+<span id="cb2-17"><a href="Descarga.html#cb2-17"></a>infile1 &lt;-<span class="kw">sub</span>(<span class="st">&quot;^https&quot;</span>,<span class="st">&quot;http&quot;</span>,infile1)</span>
+<span id="cb2-18"><a href="Descarga.html#cb2-18"></a><span class="co"># This creates a tibble named: dt1 </span></span>
+<span id="cb2-19"><a href="Descarga.html#cb2-19"></a>dt1 &lt;-<span class="kw">read_delim</span>(infile1  <span class="co">#Crea un objeto donde descarga los datos de la dirección que le damos, guardada en el objeto con nombre &quot;infile1&quot;</span></span>
+<span id="cb2-20"><a href="Descarga.html#cb2-20"></a>                 ,<span class="dt">delim=</span><span class="st">&quot;,&quot;</span>   </span>
+<span id="cb2-21"><a href="Descarga.html#cb2-21"></a>                 ,<span class="dt">skip=</span><span class="dv">1</span> </span>
+<span id="cb2-22"><a href="Descarga.html#cb2-22"></a>                 , <span class="dt">col_names=</span><span class="kw">c</span>(        <span class="co">#Asigna nombre a las columnas</span></span>
+<span id="cb2-23"><a href="Descarga.html#cb2-23"></a>                   <span class="st">&quot;sampledate&quot;</span>,   </span>
+<span id="cb2-24"><a href="Descarga.html#cb2-24"></a>                   <span class="st">&quot;year4&quot;</span>,   </span>
+<span id="cb2-25"><a href="Descarga.html#cb2-25"></a>                   <span class="st">&quot;daynum&quot;</span>,   </span>
+<span id="cb2-26"><a href="Descarga.html#cb2-26"></a>                   <span class="st">&quot;sample_time&quot;</span>,   </span>
+<span id="cb2-27"><a href="Descarga.html#cb2-27"></a>                   <span class="st">&quot;depth_calculated&quot;</span>,   </span>
+<span id="cb2-28"><a href="Descarga.html#cb2-28"></a>                   <span class="st">&quot;wtaer_temp&quot;</span>,   </span>
+<span id="cb2-29"><a href="Descarga.html#cb2-29"></a>                   <span class="st">&quot;flag_water_temp&quot;</span>,   </span>
+<span id="cb2-30"><a href="Descarga.html#cb2-30"></a>                   <span class="st">&quot;pH&quot;</span>,   </span>
+<span id="cb2-31"><a href="Descarga.html#cb2-31"></a>                   <span class="st">&quot;flag_ph&quot;</span>,   </span>
+<span id="cb2-32"><a href="Descarga.html#cb2-32"></a>                   <span class="st">&quot;chlorophylla&quot;</span>,   </span>
+<span id="cb2-33"><a href="Descarga.html#cb2-33"></a>                   <span class="st">&quot;flag_chlorophylla&quot;</span>,   </span>
+<span id="cb2-34"><a href="Descarga.html#cb2-34"></a>                   <span class="st">&quot;opt_do2&quot;</span>,   </span>
+<span id="cb2-35"><a href="Descarga.html#cb2-35"></a>                   <span class="st">&quot;flag_do2&quot;</span>,   </span>
+<span id="cb2-36"><a href="Descarga.html#cb2-36"></a>                   <span class="st">&quot;opt_dosat_raw&quot;</span>,   </span>
+<span id="cb2-37"><a href="Descarga.html#cb2-37"></a>                   <span class="st">&quot;flag_opt_dosat_raw&quot;</span>   ), </span>
+<span id="cb2-38"><a href="Descarga.html#cb2-38"></a>                 <span class="dt">col_types=</span><span class="kw">list</span>(</span>
+<span id="cb2-39"><a href="Descarga.html#cb2-39"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-40"><a href="Descarga.html#cb2-40"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb2-41"><a href="Descarga.html#cb2-41"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb2-42"><a href="Descarga.html#cb2-42"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-43"><a href="Descarga.html#cb2-43"></a>                   <span class="kw">col_number</span>() , </span>
+<span id="cb2-44"><a href="Descarga.html#cb2-44"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb2-45"><a href="Descarga.html#cb2-45"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-46"><a href="Descarga.html#cb2-46"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb2-47"><a href="Descarga.html#cb2-47"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-48"><a href="Descarga.html#cb2-48"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb2-49"><a href="Descarga.html#cb2-49"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-50"><a href="Descarga.html#cb2-50"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb2-51"><a href="Descarga.html#cb2-51"></a>                   <span class="kw">col_character</span>(), </span>
+<span id="cb2-52"><a href="Descarga.html#cb2-52"></a>                   <span class="kw">col_number</span>() ,  </span>
+<span id="cb2-53"><a href="Descarga.html#cb2-53"></a>                   <span class="kw">col_character</span>()), </span>
+<span id="cb2-54"><a href="Descarga.html#cb2-54"></a>                 <span class="dt">na=</span><span class="kw">c</span>(<span class="st">&quot; &quot;</span>,<span class="st">&quot;.&quot;</span>,<span class="st">&quot;NA&quot;</span>)  )</span></code></pre></div>
+<p>Este trocito de código que sigue es para corregir algún problema de formato que se haya podido introducir debido a algún error en la base de datos.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="Descarga.html#cb3-1"></a><span class="co"># Observed issues when reading the data. An empty list is good!</span></span>
+<span id="cb3-2"><a href="Descarga.html#cb3-2"></a><span class="kw">problems</span>(dt1) </span></code></pre></div>
+<p>Este último trozo es simplemente para ver la estructura de los datos y un resumen de cada una de la variables. Este trozo no es necesario que lo ejecutéis.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="Descarga.html#cb4-1"></a><span class="co"># Here is the structure of the input data tibble: </span></span>
+<span id="cb4-2"><a href="Descarga.html#cb4-2"></a><span class="kw">glimpse</span>(dt1) </span>
+<span id="cb4-3"><a href="Descarga.html#cb4-3"></a><span class="co"># And some statistical summaries of the data </span></span>
+<span id="cb4-4"><a href="Descarga.html#cb4-4"></a><span class="kw">summary</span>(dt1) </span>
+<span id="cb4-5"><a href="Descarga.html#cb4-5"></a><span class="co"># Get more details on character variables</span></span>
+<span id="cb4-6"><a href="Descarga.html#cb4-6"></a></span>
+<span id="cb4-7"><a href="Descarga.html#cb4-7"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_water_temp)) </span>
+<span id="cb4-8"><a href="Descarga.html#cb4-8"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_ph)) </span>
+<span id="cb4-9"><a href="Descarga.html#cb4-9"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_chlorophylla)) </span>
+<span id="cb4-10"><a href="Descarga.html#cb4-10"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_do2)) </span>
+<span id="cb4-11"><a href="Descarga.html#cb4-11"></a><span class="kw">summary</span>(<span class="kw">as.factor</span>(dt1<span class="op">$</span>flag_opt_dosat_raw))</span></code></pre></div>
+<p>Bien, una vez ejecutado el script, ya debemos tener los datos en nuestro entorno de RStudio en un tipo de objeto denominado data.frame (básicamente una tabla de datos). Vamos a ver que pinta tienen:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="Descarga.html#cb5-1"></a><span class="kw">head</span>(dt1)</span></code></pre></div>
+<p>Por último, los vamos a guardar en la carpeta “Datos” que hemos creado.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="Descarga.html#cb6-1"></a><span class="kw">write.csv</span>(dt1, <span class="st">&quot;./Datos/Datos_Crystal.csv&quot;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="estructura-de-la-práctica.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="PrimerosPasos.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "serif",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["PracticasESA.pdf", "PracticasESA.mobi"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7 Gráficas de contorno | Prácticas de Ecología de Sistemas Acuáticos</title>
+  <meta name="description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7 Gráficas de contorno | Prácticas de Ecología de Sistemas Acuáticos" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7 Gráficas de contorno | Prácticas de Ecología de Sistemas Acuáticos" />
+  
+  <meta name="twitter:description" content="En este documento abordaremos las prácticas de informática de la asignatura de Ecología de Sistemas Acuáticos." />
+  
+
+<meta name="author" content="Jorge Juan Montes Pérez (jmontesp@uma.es)" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Termoclina.html"/>
+<link rel="next" href="bibliografía.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.js');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+<script>
+document.write('<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>')
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Ecología de Sistemas Acuáticos</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>¿Cómo seguir la práctica?</a></li>
+<li class="chapter" data-level="1" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>1</b> Introducción</a></li>
+<li class="chapter" data-level="2" data-path="estructura-de-la-práctica.html"><a href="estructura-de-la-práctica.html"><i class="fa fa-check"></i><b>2</b> Estructura de la práctica</a></li>
+<li class="chapter" data-level="3" data-path="Descarga.html"><a href="Descarga.html"><i class="fa fa-check"></i><b>3</b> Descargar los datos de la red GLEON</a></li>
+<li class="chapter" data-level="4" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html"><i class="fa fa-check"></i><b>4</b> Primero pasos</a><ul>
+<li class="chapter" data-level="4.1" data-path="PrimerosPasos.html"><a href="PrimerosPasos.html#ejercicios"><i class="fa fa-check"></i><b>4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Tidyverse.html"><a href="Tidyverse.html"><i class="fa fa-check"></i><b>5</b> Paquetes importantes y sus funciones básicas</a><ul>
+<li class="chapter" data-level="5.1" data-path="Tidyverse.html"><a href="Tidyverse.html#importar-datos"><i class="fa fa-check"></i><b>5.1</b> Importar datos</a></li>
+<li class="chapter" data-level="5.2" data-path="Tidyverse.html"><a href="Tidyverse.html#organizar-tablas"><i class="fa fa-check"></i><b>5.2</b> Organizar tablas</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-1"><i class="fa fa-check"></i><b>5.2.1</b> Ejercicios:</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Tidyverse.html"><a href="Tidyverse.html#gráficas"><i class="fa fa-check"></i><b>5.3</b> Gráficas</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-2"><i class="fa fa-check"></i><b>5.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="Tidyverse.html"><a href="Tidyverse.html#trabajar-con-fechas"><i class="fa fa-check"></i><b>5.4</b> Trabajar con fechas</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="Tidyverse.html"><a href="Tidyverse.html#ejercicios-3"><i class="fa fa-check"></i><b>5.4.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Termoclina.html"><a href="Termoclina.html"><i class="fa fa-check"></i><b>6</b> Estabilidad térmica de la columna de agua</a><ul>
+<li class="chapter" data-level="6.1" data-path="Termoclina.html"><a href="Termoclina.html#perfil-vertical"><i class="fa fa-check"></i><b>6.1</b> Perfil vertical</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicio"><i class="fa fa-check"></i><b>6.1.1</b> Ejercicio</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="Termoclina.html"><a href="Termoclina.html#termoclina"><i class="fa fa-check"></i><b>6.2</b> Termoclina</a></li>
+<li class="chapter" data-level="6.3" data-path="Termoclina.html"><a href="Termoclina.html#capas-en-un-lago-estratificado"><i class="fa fa-check"></i><b>6.3</b> Capas en un lago estratificado</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-4"><i class="fa fa-check"></i><b>6.3.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="Termoclina.html"><a href="Termoclina.html#estabilidad"><i class="fa fa-check"></i><b>6.4</b> Estabilidad</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-5"><i class="fa fa-check"></i><b>6.4.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="Termoclina.html"><a href="Termoclina.html#series-temporales"><i class="fa fa-check"></i><b>6.5</b> Series temporales</a><ul>
+<li class="chapter" data-level="6.5.1" data-path="Termoclina.html"><a href="Termoclina.html#ejercicios-6"><i class="fa fa-check"></i><b>6.5.1</b> Ejercicios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Contour.html"><a href="Contour.html"><i class="fa fa-check"></i><b>7</b> Gráficas de contorno</a><ul>
+<li class="chapter" data-level="7.0.1" data-path="Contour.html"><a href="Contour.html#ejercicios-7"><i class="fa fa-check"></i><b>7.0.1</b> Ejercicios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="bibliografía.html"><a href="bibliografía.html"><i class="fa fa-check"></i>Bibliografía</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org/" target="blank">Realizado con bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Prácticas de Ecología de Sistemas Acuáticos</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="Contour" class="section level1">
+<h1><span class="header-section-number">7</span> Gráficas de contorno</h1>
+<p>Por último y aprovechando que tenemos información diaria de la temperatura del lago a distintas profundidades, quizás, sería interesante realizar una gráfica de contorno del periodo estudiado. Estas gráficas son muy visuales y ayudan a entender mejor el comportamiento del lago. Las vemos a menudo en los artículos.</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-66"></span>
+<img src="Img/Imagen_ContourPlot.png" alt="Imagen ejemplo de gráfica de contorno extraída de @Vidal2010." width="100%" />
+<p class="caption">
+Figura 7.1: Imagen ejemplo de gráfica de contorno extraída de <span class="citation">Vidal et al. (<a href="#ref-Vidal2010" role="doc-biblioref">2010</a>)</span>.
+</p>
+</div>
+<p>Existen distintos programas que permiten hacer estas gráficas como son Surfer, SigmaPlot o OceanDataView, con el inconveniente que la mayoría de ellos son privativos y de pago (OceanDataView se salva!). Además, ya estamos metidos en harina y, como hemos dicho anteriormente, R nos permite trabajar desde los datos crudos hasta la generación de gráficas e informes (estos documentos están hechos directamente desde R).</p>
+<p>Vamos a partir de la tabla de datos en formato “ancho” que creamos para calcular la profundidad de la termoclina <code>Crystal_ts</code>.</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="Contour.html#cb78-1"></a><span class="co">#Cargamos tidyverse si cerramos la sesión anterior</span></span>
+<span id="cb78-2"><a href="Contour.html#cb78-2"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb78-3"><a href="Contour.html#cb78-3"></a><span class="co">#Importamos los datos de temperatura</span></span>
+<span id="cb78-4"><a href="Contour.html#cb78-4"></a>Crystal_ts &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;Datos/Crystal_ts.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_double(),
+##   datetime = col_date(format = &quot;&quot;)
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<p>Cuando transformamos el objeto a formato “ancho” homogeneizamos las profundidades a las que tenemos datos de temperatura. Es decir, tenemos el mismo número de medidas y a las mismas profundidades para cada momento. Sin embargo, como los datos no estaban completos se han introducidos NAs en aquellas profundidades donde no teníamos información. Por ejemplo, en el perfil del 2012-03-27, tenemos datos de temperatura a 4 y a 9 metros pero no para las profundidades entre 5-8 m. Para solucionar esto, podemos interpolar los datos. Para ello, vamos a usar un nuevo paquete, <a href="https://cran.r-project.org/web/packages/zoo/zoo.pdf"><code>zoo</code></a>.</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="Contour.html#cb80-1"></a><span class="co">#Cargamos el paquete. Tiene que estar previamente instalado</span></span>
+<span id="cb80-2"><a href="Contour.html#cb80-2"></a><span class="kw">library</span>(zoo)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="Contour.html#cb83-1"></a><span class="co">#Interpolamos y extrapolamos (rule = 2) la temperatura para las profundidades que nos faltan.</span></span>
+<span id="cb83-2"><a href="Contour.html#cb83-2"></a>  Crystal_ts[,<span class="op">-</span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">na.approx</span>(Crystal_ts[,<span class="op">-</span><span class="dv">1</span>],<span class="dt">rule =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>Ahora podemos devolver los datos a su formato largo.</p>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="Contour.html#cb84-1"></a><span class="co">#Cargamos el paquete tidyverse</span></span>
+<span id="cb84-2"><a href="Contour.html#cb84-2"></a>  <span class="kw">library</span>(tidyverse)</span>
+<span id="cb84-3"><a href="Contour.html#cb84-3"></a><span class="co">#Devolvemos la tabla al formato &quot;largo&quot;</span></span>
+<span id="cb84-4"><a href="Contour.html#cb84-4"></a>  Temp_largo &lt;-<span class="st"> </span><span class="kw">gather</span>(Crystal_ts, <span class="dt">key =</span> <span class="st">&quot;depth&quot;</span>, <span class="dt">value =</span> <span class="st">&quot;wtemp&quot;</span>, <span class="op">-</span>datetime)</span>
+<span id="cb84-5"><a href="Contour.html#cb84-5"></a><span class="co">#Le quitamos &quot;wtr_&quot; a la variable profundidad para que se quede sólo los números.</span></span>
+<span id="cb84-6"><a href="Contour.html#cb84-6"></a>  Temp_largo &lt;-<span class="st"> </span>Temp_largo <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">depth =</span> <span class="kw">parse_number</span>(depth))</span></code></pre></div>
+<p>E intentamos representar.</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="Contour.html#cb85-1"></a><span class="kw">ggplot</span>(Temp_largo, <span class="kw">aes</span>(<span class="dt">x =</span> datetime, <span class="dt">y =</span> depth, <span class="dt">color =</span> wtemp))<span class="op">+</span></span>
+<span id="cb85-2"><a href="Contour.html#cb85-2"></a><span class="st">  </span><span class="kw">geom_point</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-71-1.png" width="100%" /></p>
+<p>Parece que estamos bastante cerca, sin embargo, hay muchos huecos en blanco. Para solucionar esto vamos a crear una matriz y a usar una interpolación espacial multinivel b-spline para completar la información que nos falta. Para esto, usamos el paquete <a href="https://cran.r-project.org/web/packages/MBA/MBA.pdf">MBA</a>.</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="Contour.html#cb86-1"></a><span class="co">#Cargamos lubridate, aunque viene con tidyverse hay que &quot;llamarlo&quot; a parte.</span></span>
+<span id="cb86-2"><a href="Contour.html#cb86-2"></a>  <span class="kw">library</span>(lubridate)</span>
+<span id="cb86-3"><a href="Contour.html#cb86-3"></a><span class="co">#Primero tenemos que convertir las fechas en un vector numérico</span></span>
+<span id="cb86-4"><a href="Contour.html#cb86-4"></a>  Temp_largo<span class="op">$</span>datetime &lt;-<span class="st"> </span><span class="kw">decimal_date</span>(Temp_largo<span class="op">$</span>datetime)</span>
+<span id="cb86-5"><a href="Contour.html#cb86-5"></a><span class="co">#Cargamos el paquete MBA, hay que instalarlo previamente.</span></span>
+<span id="cb86-6"><a href="Contour.html#cb86-6"></a>  <span class="kw">library</span>(MBA)</span>
+<span id="cb86-7"><a href="Contour.html#cb86-7"></a><span class="co"># Aquí creamos una matriz con mayor resolución usando una interpolación espacial multinivel b-spline</span></span>
+<span id="cb86-8"><a href="Contour.html#cb86-8"></a>Temp_mba &lt;-<span class="st"> </span><span class="kw">mba.surf</span>(Temp_largo, <span class="dt">no.X =</span> <span class="dv">500</span>, <span class="dt">no.Y =</span> <span class="dv">500</span>, <span class="dt">extend =</span> T)</span>
+<span id="cb86-9"><a href="Contour.html#cb86-9"></a><span class="co">#Aquí están las fecha con la nueva resolución (en este caso es mayor de la que teniamos, 500 &quot;perfiles&quot;, frente a los 189 que teníamos)</span></span>
+<span id="cb86-10"><a href="Contour.html#cb86-10"></a><span class="kw">head</span>(Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>x)</span></code></pre></div>
+<pre><code>## [1] 2012.224 2012.225 2012.226 2012.227 2012.228 2012.229</code></pre>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="Contour.html#cb88-1"></a><span class="co">#Aquí tenemos las nuevas profundidades, 500 profundidades en lugar de las 19 que teniamos antes</span></span>
+<span id="cb88-2"><a href="Contour.html#cb88-2"></a><span class="kw">head</span>(Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>y)</span></code></pre></div>
+<pre><code>## [1] 0.00000000 0.03607214 0.07214429 0.10821643 0.14428858 0.18036072</code></pre>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="Contour.html#cb90-1"></a><span class="co">#Estos son los datos de temperatura</span></span>
+<span id="cb90-2"><a href="Contour.html#cb90-2"></a><span class="kw">head</span>(Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>z)[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]</span></code></pre></div>
+<pre><code>##  [1] 8.336292 8.334450 8.329062 8.320237 8.308084 8.290180 8.312388 8.310018
+##  [9] 8.303618 8.293271</code></pre>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="Contour.html#cb92-1"></a><span class="co">#Los juntamos todos</span></span>
+<span id="cb92-2"><a href="Contour.html#cb92-2"></a>Temp_prof &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>z)</span>
+<span id="cb92-3"><a href="Contour.html#cb92-3"></a><span class="kw">colnames</span>(Temp_prof) &lt;-<span class="st">  </span>Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>y</span>
+<span id="cb92-4"><a href="Contour.html#cb92-4"></a>Temp_prof &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(<span class="dt">date =</span> Temp_mba<span class="op">$</span>xyz.est<span class="op">$</span>x, Temp_prof)</span>
+<span id="cb92-5"><a href="Contour.html#cb92-5"></a><span class="co">#Y los volvemos al formato largo.</span></span>
+<span id="cb92-6"><a href="Contour.html#cb92-6"></a>Temp_mba &lt;-<span class="st"> </span><span class="kw">gather</span>(Temp_prof, <span class="dt">key =</span> <span class="st">&quot;depth&quot;</span>, <span class="dt">value =</span> <span class="st">&#39;temp&#39;</span>, <span class="op">-</span>date) <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">temp =</span> <span class="kw">round</span>(temp, <span class="dv">3</span>))</span>
+<span id="cb92-7"><a href="Contour.html#cb92-7"></a></span>
+<span id="cb92-8"><a href="Contour.html#cb92-8"></a><span class="co">#Ponemos la profundidad en numérico, se nos había quedado como carácter</span></span>
+<span id="cb92-9"><a href="Contour.html#cb92-9"></a>Temp_mba &lt;-<span class="st"> </span>Temp_mba <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">depth =</span> <span class="kw">as.numeric</span>(depth))</span>
+<span id="cb92-10"><a href="Contour.html#cb92-10"></a></span>
+<span id="cb92-11"><a href="Contour.html#cb92-11"></a><span class="co">#Esta es la pinta de los datos:</span></span>
+<span id="cb92-12"><a href="Contour.html#cb92-12"></a><span class="kw">head</span>(Temp_mba)</span></code></pre></div>
+<pre><code>##       date depth  temp
+## 1 2012.224     0 8.336
+## 2 2012.225     0 8.334
+## 3 2012.226     0 8.329
+## 4 2012.227     0 8.320
+## 5 2012.228     0 8.308
+## 6 2012.229     0 8.290</code></pre>
+<p>Ahora representamos de nuevo.</p>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="Contour.html#cb94-1"></a><span class="kw">ggplot</span>(Temp_mba, <span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">y =</span> depth, <span class="dt">color =</span> temp))<span class="op">+</span></span>
+<span id="cb94-2"><a href="Contour.html#cb94-2"></a><span class="st">  </span><span class="kw">geom_point</span>()</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-73-1.png" width="100%" /></p>
+<p>¡Mucho mejor! Vamos a cambiar algunos aspectos estéticos para que quede más resultona.</p>
+<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="Contour.html#cb95-1"></a><span class="co">#Vamos a devolverle el formato de fecha</span></span>
+<span id="cb95-2"><a href="Contour.html#cb95-2"></a>Temp_mba<span class="op">$</span>date &lt;-<span class="st"> </span><span class="kw">date_decimal</span>(Temp_mba<span class="op">$</span>date)</span>
+<span id="cb95-3"><a href="Contour.html#cb95-3"></a><span class="co">#Cargamos un paquete para usar una paleta de color má común</span></span>
+<span id="cb95-4"><a href="Contour.html#cb95-4"></a><span class="kw">library</span>(colorRamps)</span>
+<span id="cb95-5"><a href="Contour.html#cb95-5"></a>Grafica_temp &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> Temp_mba, <span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">y =</span> depth)) <span class="op">+</span></span>
+<span id="cb95-6"><a href="Contour.html#cb95-6"></a><span class="st">  </span><span class="kw">geom_tile</span>(<span class="kw">aes</span>(<span class="dt">fill =</span> temp)) <span class="op">+</span><span class="st"> </span><span class="co">#Usamos esta capa que viene mejor para este tipo de gráficos pero podíamos haber usado geom_point</span></span>
+<span id="cb95-7"><a href="Contour.html#cb95-7"></a><span class="st">  </span><span class="kw">scale_y_reverse</span>()<span class="op">+</span></span>
+<span id="cb95-8"><a href="Contour.html#cb95-8"></a><span class="st">  </span><span class="kw">scale_fill_gradientn</span>(<span class="dt">colours =</span> <span class="kw">matlab.like2</span>(<span class="dv">10</span>)) <span class="op">+</span></span>
+<span id="cb95-9"><a href="Contour.html#cb95-9"></a><span class="st">  </span><span class="kw">geom_contour</span>(<span class="kw">aes</span>(<span class="dt">z =</span> temp), <span class="dt">binwidth =</span> <span class="dv">1</span>, <span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>) <span class="op">+</span></span>
+<span id="cb95-10"><a href="Contour.html#cb95-10"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Profundidad (m)&quot;</span>, <span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">fill =</span> <span class="st">&quot;temp. (°C)&quot;</span>) <span class="op">+</span></span>
+<span id="cb95-11"><a href="Contour.html#cb95-11"></a><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">expand =</span> <span class="dv">0</span>)</span>
+<span id="cb95-12"><a href="Contour.html#cb95-12"></a>Grafica_temp</span></code></pre></div>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-74-1.png" width="100%" /></p>
+<p>Hemos cambiado el formato de la fecha, hemos invertido el eje profundidad para que se más intuitivo, hemos cambiado las etiquetas, el color y añadido unas lineas de contorno.</p>
+<p>Vamos a probar a añadirle la profundidad de la capa de mezcla.</p>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="Contour.html#cb96-1"></a>Termoclina &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;Datos/Termoclina.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   datetime = col_date(format = &quot;&quot;),
+##   thermo.depth = col_double()
+## )</code></pre>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="Contour.html#cb98-1"></a>  Grafica_temp_zmix &lt;-<span class="st"> </span>Grafica_temp <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="dt">data =</span> Termoclina, <span class="kw">aes</span>(<span class="dt">x=</span>datetime, <span class="dt">y =</span> thermo.depth, <span class="dt">color =</span> <span class="st">&quot;Termoclina&quot;</span>), <span class="dt">size =</span> <span class="fl">0.2</span>)<span class="op">+</span></span>
+<span id="cb98-2"><a href="Contour.html#cb98-2"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="ot">NULL</span>)</span>
+<span id="cb98-3"><a href="Contour.html#cb98-3"></a>  </span>
+<span id="cb98-4"><a href="Contour.html#cb98-4"></a>  Grafica_temp_zmix</span></code></pre></div>
+<pre><code>## Error: Invalid input: time_trans works with objects of class POSIXct only</code></pre>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-75-1.png" width="100%" /></p>
+<p>¡Vaya! Tenemos un error. Esto saca de quicio pero os iréis acostumbrando, poco a poco empezaréis a comprender que quiere decir el mensaje de error y buscar en qué os habéis equivocado. En este caso, el error nos dice que al transforma un objeto de tiempo no ha podido porque trabaja con objetos de clase POSIXct. Si os fijáis en el data.frame que usamos para hacer la gráfica de contorno (<code>Temp_mba</code>) la fecha está en formato <code>POSIXct</code> y en el data.frame de <code>Termoclina</code> está en formato <code>Date</code>. Sólo tenemos que cambiar el formato de este último y estará solucionado.</p>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="Contour.html#cb100-1"></a>Termoclina &lt;-<span class="st"> </span>Termoclina <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime))</span>
+<span id="cb100-2"><a href="Contour.html#cb100-2"></a></span>
+<span id="cb100-3"><a href="Contour.html#cb100-3"></a>Grafica_temp_zmix &lt;-<span class="st"> </span>Grafica_temp <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="dt">data =</span> Termoclina, <span class="kw">aes</span>(<span class="dt">x=</span>datetime, <span class="dt">y =</span> thermo.depth, <span class="dt">color =</span> <span class="st">&quot;Termoclina&quot;</span>), <span class="dt">size =</span> <span class="fl">0.2</span>)<span class="op">+</span></span>
+<span id="cb100-4"><a href="Contour.html#cb100-4"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="ot">NULL</span>)</span>
+<span id="cb100-5"><a href="Contour.html#cb100-5"></a>  </span>
+<span id="cb100-6"><a href="Contour.html#cb100-6"></a>  Grafica_temp_zmix</span></code></pre></div>
+<pre><code>## Warning: Removed 9 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-76-1.png" width="100%" /></p>
+<p>Como vemos hay cierta oscilación en la termoclina y sobretodo en los momentos en lo que la estratificación está comenzando o se está rompiendo. A rasgos generales podemos decir que la estratificación comienza a finales de mayo y se prolonga hasta mediados de agosto. A mediados de agosto vemos que se rompe la estratificación y vuelve a estratificarse suavemente pero a mediados de septiembre el lago está totalmente mezclado con las isotermas totalmente verticales. Si queremos, para visualizar la termoclina podemos usar un suavizado:</p>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="Contour.html#cb102-1"></a>Grafica_temp_zmix &lt;-<span class="st"> </span>Grafica_temp <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">data =</span> Termoclina, <span class="kw">aes</span>(<span class="dt">x=</span>datetime, <span class="dt">y =</span> thermo.depth, <span class="dt">color =</span> <span class="st">&quot;Termoclina&quot;</span>), <span class="dt">size =</span> <span class="fl">0.2</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>, <span class="dt">se =</span> <span class="ot">FALSE</span>)<span class="op">+</span></span>
+<span id="cb102-2"><a href="Contour.html#cb102-2"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="ot">NULL</span>)</span>
+<span id="cb102-3"><a href="Contour.html#cb102-3"></a>  </span>
+<span id="cb102-4"><a href="Contour.html#cb102-4"></a>  Grafica_temp_zmix</span></code></pre></div>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="Pr%C3%A1cticas-Ecolog%C3%ADa-Sistemas-Acu%C3%A1ticos_files/figure-html/unnamed-chunk-77-1.png" width="100%" /></p>
+<p>Y ya la tenemos lista para exportar. Podéis guardarla en el formato que más os guste (.jpeg, .pdf, .bmp, …) simplemente cambiando el nombre con el que lo guardáis o indicándolo con el argumento <code>device</code>. Además también podéis fijar el ancho y el largo, así como otras opciones que podéis ver en <code>?ggsave()</code>.</p>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="Contour.html#cb104-1"></a><span class="kw">ggsave</span>(<span class="st">&quot;./Graficas/Grafica_temp.png&quot;</span>, Grafica_temp_zmix, <span class="dt">width =</span> <span class="dv">20</span>, <span class="dt">height =</span> <span class="dv">10</span>, <span class="dt">units =</span> <span class="st">&quot;cm&quot;</span>)</span></code></pre></div>
+<div id="ejercicios-7" class="section level3">
+<h3><span class="header-section-number">7.0.1</span> Ejercicios</h3>
+<ol style="list-style-type: decimal">
+<li><em>Añade el límite superior e inferior del metalimnion a la gráfica <code>Gráfica_temp</code>.</em></li>
+<li><em>Haz una gráfica de contorno para el oxígeno disuelto.</em></li>
+</ol>
+
+
+</div>
+</div>
+<h3>Bibliografía</h3>
+<div id="refs" class="references">
+<div id="ref-Vidal2010">
+<p>Vidal, Javier, Enrique Moreno-Ostos, Carmelo Escot, Ruben Quesada, and Francisco Rueda. 2010. “The effects of diel changes in circulation and mixing on the longitudinal distribution of phytoplankton in a canyon-shaped Mediterranean reservoir.” <em>Freshwater Biology</em> 55 (9): 1945–57. <a href="https://doi.org/10.1111/j.1365-2427.2010.02428.x">https://doi.org/10.1111/j.1365-2427.2010.02428.x</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Termoclina.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="bibliografía.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "serif",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["PracticasESA.pdf", "PracticasESA.mobi"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

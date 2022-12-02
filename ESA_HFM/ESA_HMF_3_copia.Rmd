@@ -1,0 +1,232 @@
+---
+title: "Ecología de Sistemas Acuáticos:"
+subtitle: "*Análisis de datos de monitoreo de alta frecuencia (HFM) con R.*"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    css: Formato_ejercicios.css
+    theme: journal
+    code_folding: hide
+csl: Limnology_Oceanography_bib.csl
+bibliography: /home/jorge/Documentos/library.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Paquetes importantes y sus funciones básicas
+
+Ya hemos dado nuestros primeros pasos en R, conocemos su entorno RStudio, hemos creado nuestros primeros objetos y aplicado un par de funciones básicas. Ahora vamos a dar un paso más allá y vamos a ver algunos de lo más paquetes que pueden ser más importantes para nosotros y sus funciones más útiles.
+
+Para esta parte de la práctica ya debemos haber descargado los datos de la plataforma GLEON como se indicó en la sección 1.
+
+Lo primero que nos preguntaremos, ¿Qué es un paquete? Un paquete de R es un conjunto de funciones que han sido creadas con un objetivo común, por ejemplo hacer gráficas, y que han sido agrupadas para que puedan ser cargadas en R todas juntas.
+
+Para instalar un paquete no tenemos mas que ejecutar:
+
+```{r, eval = FALSE}
+install.packages("nombre_del_paquete")
+``` 
+
+## Importar datos
+
+La mayoría de los paquetes que vamos a ver durante la práctica han sido agrupados en una colección de paquetes que nos permite instalarlos y cargarlos todos juntos. Esta colección de paquetes se llama [*tidyverse*](https://www.tidyverse.org/). El primer paquete que vamos a ver es [`readr`](https://cran.r-project.org/web/packages/readr/readr.pdf).
+Si aún no hemos instalado `tydiverse`:
+
+```{r, eval = FALSE}
+install.packages("tidyverse")
+``` 
+
+Si ya lo tenemos instalado, solo tenemos que "llamarlo" o cargarlo. Cada vez que abrimos una sesión de R hay que cargar los paquetes que vayamos a usar durante la sesión. No es necesario volver a instalarlos pero sí hay cargarlos usando la función `library()`:
+
+```{r, eval = FALSE}
+#Library. Al principio de nuestro scrip creamos un apartado donde iremos cargando los paquetes nos hacen falta.
+library(readr) #Si solo quisieramos cargar el paquete readr.
+``` 
+
+```{r}
+#Library. Al principio de nuestro scrip creamos un apartado donde iremos cargando los paquetes nos hacen falta.
+library(tidyverse) #De esta forma, todos los paquetes que agrupa tydiverse: ggplot2, readr, dplyr, etc. Yo usaría esta.
+``` 
+Vemos que al cargar `tydiverse` nos informa de qué paquetes han sido cargados y algunas funciones que tienen conflicto con otros paquetes.
+Una vez cargado el paquete, la primera función que vamos a necesitar es `read_csv()`. Esta función nos permite importar tablas que se han guardado en formato `.csv`. Al principio de la práctica, creamos un proyecto de R, descargamos los datos de la plataforma y los guardamos en la carpeta `Datos` de nuestro directorio. Si guardasteis vuestro espacio de trabajo al salir, tendreis un objeto llamado `dt1`. Pero si no guardasteis, tendremos que importar los datos de nuevo y, además, aprovechamos para ponerle un nombre que nos sea más evocador que `dt1`, usaremos, por ejemplo, `Crystal`:
+
+```{r}
+Crystal <- read_csv("Datos/Datos_Crystal.csv")
+```
+
+Al importar el archivo, la función reconoce automaticamente el tipo de elementos que se guarda en cada columna. Por ejemplo, la columna sampledate es de tipo fecha, mientras que year y depth_calculated son `doubles` que vienen a ser valores númericos no enteros (double no es más que la forma en la que ese número se expresa en forma binaria usando 64 bits).
+
+No os preocupeis por el aviso (warnings) que nos da, nos aviso de que esperaba encontrar un tipo de valor en una columna que no se corresponde con lo que ha entrado. A nosotros no nos preocupa la información que hay en esa columna ^[Si no sabéis que información guarda esa columna, acordaos de que podéis mirar en los metadatos de la página donde descargasteis los datos.].
+
+Vamos a ver un resumen de la información que tenemos disponible en la tabla de datos.
+
+```{r}
+#Vistazo general
+summary(Crystal)
+```
+
+R nos muestra para cada columna los valores mínimos, máximos, la media, la mediana y los cuartiles 1 y 3. Además, también nos dice cuantos valores faltan (NA's). Recordad que podéis usar la función `View()` para ver los datos directamente, también podéis hacer doble click sobre el objeto `dt1`.
+
+## Organizar tablas
+
+Una cosa está clara, tenemos mucha información y, además, el archivo es bastante pesado, casi 140 MB. Vamos a centrarnos sólo en un año, 2012 por ejemplo. Para ello vamos a tirar mano de otro paquete: `dplyr`. Este es otro de los que ya viene preparado con `tidyverse`, por lo que tendremos que cargarlo. Este paquete es muy util para organizar, filtrar y transformar la información de las tablas, aquí os dejo un "chuleta" con las funciones principales: [chuleta dplyr](https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-transformation.pdf). Como queremos filtrar los datos y quedarnos solo con los del año 2012, vamos a usar la función `filter()`.
+
+```{r}
+#Nos quedamos sólo con los datos del 2012
+Crystal_2012 <- filter(Crystal, year4 == 2012)
+rm(Crystal) #Aprovechamos para eliminar el otro objeto que no nos va a servir.
+```
+
+### Ejercicios: 
+  1. *Filtra la tabla para quedarte con los datos del 2013.*
+  2. *Filtra la tabla para quedarte solo con los datos que fueron tomados a un metro de profundidad.*
+
+
+## Gráficas
+¡Perfecto! Ahora vamos a hacer alguna gráfica. Para ello vamos a usar otro paquete, también incluido en tidyverse, `ggplot2`. Aquí os dejo otra chuleta para usar este paquete ([pincha aquí](https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf)). ¿Habrá cambios en la temperatura del agua a lo largo del año? Echemos un vistazo:
+
+```{r}
+ggplot(Crystal_2012, aes(x = sampledate, y= wtaer_temp))+ #Aquí indicamos donde está la información que queremos representar (Crystal_2012) y que variables x e y
+  geom_point() #Aquí indicamos el tipo de gráfico, en este caso hemos elegido puntos
+```
+
+Ummm... El es un poco extraño. ¿Y si seleccionamos sólo la temperatura que tenemos a 1 metro de profundidad?
+
+```{r}
+Crystal_temp_1m <- filter(Crystal_2012, depth_calculated == 1)
+ggplot(Crystal_temp_1m, aes(x = sampledate, y= wtaer_temp))+
+  geom_point()
+```
+
+Algo mejor. Vemos que la temperatura aumenta durante la primavera y que vuelve a caer cuando se entra en el otoño. Sin embargo, a parte del patrón general, se puede observar un patrón secundario. Quizás se deba a oscilaciones diarias. Para ver eso tenemos que seleccionar la temperatura a la profundiad de 1 metros y un solo día. Con la función filter podemos hacer eso.
+
+```{r}
+Temp_1m_1dia <- filter(Crystal_2012, depth_calculated == 1 & daynum == 260) #Yo he elegido el día 260 (16 de septiembre)
+ggplot(Temp_1m_1dia, aes(x=sampledate, y = wtaer_temp))+
+  geom_point()
+```
+
+Parece que sí, como cabría esperar la temperatura baja por la noche y sube por el día. Además hemos aprendido una cosa nueva en R: los operadores. Os dejo los más comunes:
+
++----------+-----------------------+
+| Operador |  Descripción          |
++==========+=======================+
+|   \>     | mayor que             |
++----------+-----------------------+
+|   <      | menor que             |
++----------+-----------------------+
+|   \>=    | mayor o igual que     |
++----------+-----------------------+
+|   <=     | menor o igual que     |
++----------+-----------------------+
+|   ==     | exactamente igual que |
++----------+-----------------------+
+|   !=     | distinto a            |
++----------+-----------------------+
+| x & y    | x e y                 |
++----------+-----------------------+
+| x | y    | x o y                 |
++----------+-----------------------+
+   
+  
+
+Ahora, vamos a hacer algunos arreglos estéticos (cambiar el nombre de los ejes, el fondo)
+
+```{r}
+ggplot(Temp_1m_1dia, aes(x = sampledate, y= wtaer_temp))+ #Aquí indicamos donde está la información que queremos representar (Crystal_2012) y que variables x e y
+  geom_point()+ #Aquí indicamos el tipo de gráfico, en este caso hemos elegido puntos
+  labs(x = "Fecha", y = "Temperatura", title = "Temperatura a 1 m de profundidad")+ #Aquí  podemos modificar las etiquetas del gráfico.
+  theme_classic() #Esta función usa un "tema" predefinido para la gráfica
+```
+
+Ya tiene mejor pinta. Vamos a ver si se comporta igual a distinta profundida. Para ello, solo tenemos que decirle a ggplot que nos haga una gráfica por cada profundidad usando `facet_wrap()`.
+
+```{r}
+Crystal_temp_dia260 <- filter(Crystal_2012, daynum == 260)
+ggplot(Crystal_temp_dia260, aes(x = sampledate, y= wtaer_temp))+ #Aquí indicamos donde está la información que queremos representar (Crystal_2012) y que variables x e y
+  geom_point()+ #Aquí indicamos el tipo de gráfico, en este caso hemos elegido puntos
+  labs(x = "Fecha", y = "Temperatura", title = "Temperatura a 1 m de profundidad")+ #Aquí  podemos modificar las etiquetas del gráfico.
+  facet_wrap(~depth_calculated)+ #En esta línea le indicamos que haga una gráfica por cada profundidad.
+  scale_x_datetime(date_labels = "%R")+ #He añadido esta línea para que el formato de la fecha ponga solo la hora.
+  theme_classic() #Esta función usa un "tema" predefinido para la gráfica
+```
+
+Aquí podemos ver varias cosas interesantes. Por un lado, la temperatura parece oscilar a lo largo del día (día-noche) sólo en las capas más superficiales pero en las capas profundas la variación es mínima ¿alguna idea? ¿Podría estar la masa de agua estratificada? Lo veremos más adelante... Por otro lado, vemos que la cantidad de información (puntos) no es la misma en cada profundidad, a 1 metros tenemos muchos más registros de temperatura que a 10 o 12 metros. Vamos a comprobar si es algo general para todos los días:
+
+```{r}
+#Contamos el número de filas que hay para cada profundidad y día
+Test_profundidades <- Crystal_2012 %>% group_by(daynum, depth_calculated) %>% summarise(n_filas = n())
+#Lo representamos en una gráfica
+ggplot(Test_profundidades, aes(x = depth_calculated, y = n_filas))+
+  geom_point()+
+  labs(x = "Profundidad", y = "Número de filas")+
+  theme_classic()
+
+```
+
+Vemos que en las profundidades de 0 metros y 1 metro hay muchos más registros que en el resto. Por lo tanto, la variabilidad diaria puede no estar igual de bien recogida para todas las profundades. En la siguiente sección vamos a selecionar una franja horaria y a obtener un valor medio por profundidad.
+
+En el código que acabamos de ejecutar habréis encontrado algunos elementos nuevos. Tres funciones nuevas, `group_by()`, `summarise()` y `n()`, que nos permiten agrupar en función de las variables que queramos, resumir la información de la tabla y contar el número de elementos que hay en un grupo, respectivamente. Y un nuevo operador denominado "pipe", `%>%`. El operador `%>%` nos permite concatenar funciones de una manera más fácil de visualizar. Lo vemos con un ejemplo más sencillo:
+
+```{r}
+#Si queremos seleccionar la variable temperatura pero sólo de la profundidad de 1 metro
+#Puedo hacerlo inclyendo funciones dentro de funciones:
+select(filter(Crystal_2012, depth_calculated == 1), daynum)
+#O concatenandolas:
+Crystal_2012 %>% filter(depth_calculated == 1)  %>% select(daynum)
+#Esta última es más fácil de entender.
+```
+
+### Ejercicios
+  1. *Representa otra variable, la que a tí te apetezca. Ej: oxígeno disuelto.*
+  2. *Prueba, en lugar de theme_classic(), otro tema diferente: por ejemplo: `theme_ligth()`.*
+  3. *Prueba a usar `geom_line()` en lugar de `geom_point()`.*
+  4. *¿Y si en lugar de "%R" usáis "%H"? Ejecuta `?strptime` y mira los formatos disponibles. Experimenta con ellos.*
+  5. *Si ya estas muy mosquead\@ con R (cosa que entiendo perfectamente), prueba a abrir la tabla con excel y repesentar la temperatura en el lago Crystal en cada profundidad para el día 260 del año 2012.*
+  
+
+## Trabajar con fechas
+
+Como dijimos en la sección anterior, vamos a obtener un valor medio de temperatura por profundidad y día. Para trabajar con fechas, horas, etc. en R tenemos un paquete que nos facilita la vida: [`lubridate`](https://cran.r-project.org/web/packages/lubridate/lubridate.pdf). Para este paquete también disponemos de "chuleta", [aquí os la dejo](https://raw.githubusercontent.com/rstudio/cheatsheets/master/lubridate.pdf). Este paquete, aunque también se instala con tidyverse, hay que cargarlo de manera independiente.
+
+```{r}
+library(lubridate)
+```
+
+En la columna `sampledate` tenemos recogida la información de la fecha y la hora a la que se tomó la medida. Con el paquete `lubridate` podemos extraer esta información de manera sencilla:
+
+```{r, eval = FALSE}
+date(Crystal_2012$sampledate) #Nos da la fecha
+hour(Crystal_2012$sampledate)#Nos da la hora
+minute(Crystal_2012$sampledate) #Nos da los minutos
+yday(Crystal_2012$sampledate) #el día del año
+```
+
+Con esta pequeña presentación y uniendo lo que hemos visto hasta ahora, quizás, podríamos intentar calcular la temperatura media de cada profundidad para cada día teniendo en cuenta sólo los valores medidos entre las 11:00 de la mañana y las 16:00 de la tarde.
+
+Vamos a intentarlo:
+
+```{r}
+#nos quedamos sólo con las muestras tomadas entres las 11:00 y las 16:00
+Crystal_dia <- Crystal_2012 %>% filter(hour(sampledate) >= 11 & hour(sampledate) <= 16)
+#Calculamos la temperatura media por día y profundidad
+Crystal_dia %>% group_by(daynum, depth_calculated) %>% summarise(mean(wtaer_temp))
+```
+
+¡Perfecto!¡Ya lo tenemos! Si le echáis un vistazo a la chuleta que os dejé del paquete [`dplyr`](https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-transformation.pdf), hay dos funcions que nos pueden resultar interesantes: `between()` y `summarise_if()`. La primera nos simplifica la vida cuando queremos filtrar dentro de un rango determinado y la segunda nos permite calcular la media de todas las variables numéricas de una vez.
+
+Solución:
+```{r}
+#Lo he recogido todo en una sola línea.
+Crystal_dia <- Crystal_2012 %>% filter(between(hour(sampledate), 11, 16)) %>% group_by(daynum, depth_calculated) %>% summarise_if(is.numeric, mean, na.rm = TRUE)
+
+```
+
+## Ejercicios 
+
+1. Intenta aplicar la función `between()` para filtrar tabla y quedarnos solo con los valores que están entre las 11:00 y las 16:00.
+2. Intenta aplicar la función `summarise_if()` para calcular la media, no sólo de la temperatura del agua, si no de todas las variables numéricas que tenemos.
